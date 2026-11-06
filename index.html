@@ -1256,7 +1256,7 @@
         gold: read('--gold', '#e0b850'),
       };
     },
-    render({ tiles, handshake, result, sub }) {
+    render({ tiles, handshake, result, main }) {
       const S = 1080;
       const canvas = document.createElement('canvas');
       canvas.width = S; canvas.height = S;
@@ -1289,64 +1289,85 @@
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
+      // РЕШАЙ
       ctx.fillStyle = c.board;
       ctx.font = '600 56px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
       ctx.fillText('Р Е Ш А Й', S / 2, 130);
 
-      ctx.fillStyle = c.accent;
-      ctx.font = 'italic 400 22px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
-      ctx.fillText('❄ под Рождество ❄', S / 2, 172);
+      // пятнашки по-русски
+      ctx.fillStyle = c.muted;
+      ctx.font = 'italic 400 24px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
+      ctx.fillText('пятнашки по-русски', S / 2, 172);
 
+      // матрёшка
       ctx.save();
-      ctx.translate(S / 2 - 220, 260);
+      ctx.translate(S / 2 - 220, 250);
       Matryoshka.draw(ctx, 440, tiles, handshake, true);
       ctx.restore();
 
-      ctx.fillStyle = c.ink;
-      ctx.font = '700 64px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
-      ctx.fillText(result, S / 2, 820);
-
+      // Сдался на 18-м / Собрал за 42 хода
       ctx.fillStyle = c.muted;
-      ctx.font = 'italic 400 28px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
-      ctx.fillText(sub, S / 2, 875);
+      ctx.font = 'italic 400 36px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
+      ctx.fillText(result, S / 2, 780);
 
+      // Твой ход
+      ctx.fillStyle = c.ink;
+      ctx.font = '700 76px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
+      ctx.fillText(main, S / 2, 870);
+
+      // рукопожатие 6-е
       ctx.fillStyle = c.accent;
       ctx.font = 'italic 400 24px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
-      ctx.fillText('передай забаву · тот же расклад', S / 2, S - 90);
+      ctx.fillText('рукопожатие ' + ordinalText(handshake), S / 2, 940);
 
       return canvas;
     }
   };
 
-  // === Ссылка-вызов ===
+  // === Ссылка-вызов (формат #xxxx-xxxx-xxxx-xxxx-N) ===
   class ChallengeLink {
     static parse() {
       try {
-        const params = new URLSearchParams(window.location.search);
-        const zabava = params.get('zabava');
-        const krugStr = params.get('krug');
-        const result = { tiles: null, handshake: 1 };
-        if (zabava) {
-          const parts = zabava.split(',').map(s => parseInt(s, 10));
-          if (parts.length === TILE_COUNT) {
-            const seen = new Set(parts);
-            const valid = seen.size === TILE_COUNT && parts.every(n => Number.isInteger(n) && n >= 0 && n < TILE_COUNT);
-            if (valid && !Puzzle.isSolvedArray(parts)) result.tiles = parts;
+        const hash = window.location.hash.replace(/^#/, '');
+        if (!hash) return { tiles: null, handshake: 1 };
+
+        const parts = hash.split('-');
+        if (parts.length < 4) return { tiles: null, handshake: 1 };
+
+        const hex = parts.slice(0, 4).join('');
+        if (hex.length !== TILE_COUNT) return { tiles: null, handshake: 1 };
+
+        const tiles = [];
+        for (let i = 0; i < TILE_COUNT; i++) {
+          const v = parseInt(hex[i], 16);
+          if (!Number.isInteger(v) || v < 0 || v > 15) {
+            return { tiles: null, handshake: 1 };
           }
+          tiles.push(v);
         }
-        if (krugStr) {
-          const n = parseInt(krugStr, 10);
-          if (Number.isInteger(n) && n > 0 && n < 100000) result.handshake = n;
+
+        const seen = new Set(tiles);
+        if (seen.size !== TILE_COUNT) return { tiles: null, handshake: 1 };
+        if (Puzzle.isSolvedArray(tiles)) return { tiles: null, handshake: 1 };
+
+        let handshake = 1;
+        if (parts.length >= 5) {
+          const n = parseInt(parts[4], 10);
+          if (Number.isInteger(n) && n > 0 && n < 100000) handshake = n;
         }
-        return result;
-      } catch (_) { return { tiles: null, handshake: 1 }; }
+
+        return { tiles, handshake };
+      } catch (_) {
+        return { tiles: null, handshake: 1 };
+      }
     }
+
     static build(tiles, handshake) {
-      const params = new URLSearchParams();
-      params.set('zabava', tiles.join(','));
-      params.set('krug', String(handshake));
-      return window.location.origin + window.location.pathname + '?' + params.toString();
+      const hex = tiles.map(v => v.toString(16)).join('');
+      const grouped = hex.match(/.{4}/g).join('-');
+      return window.location.origin + window.location.pathname + '#' + grouped + '-' + handshake;
     }
+
     static clear() {
       try { history.replaceState({}, '', window.location.pathname); } catch (_) {}
     }
@@ -1457,7 +1478,6 @@
       if (!seen) this.showSplash();
       try { localStorage.setItem(SPLASH_KEY, '1'); } catch (_) {}
 
-      // базовое значение на случай запуска без ссылки
       this.currentHandshake = 1;
 
       const challenge = ChallengeLink.parse();
@@ -1745,7 +1765,7 @@
           tiles: this.originalTiles,
           handshake: this.currentHandshake,
           result: data.result,
-          sub: data.sub
+          main: data.main
         });
         const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
         if (blob) file = new File([blob], 'matryoshka.png', { type: 'image/png' });
@@ -1797,14 +1817,17 @@
     }
 
     getShareData() {
+      const m = this.puzzle.moves;
       if (this.puzzle.isSolved()) {
-        const m = this.puzzle.moves;
-        return { result: 'Решено', sub: m + ' ' + plural(m, 'ход', 'хода', 'ходов') };
+        return {
+          result: 'Собрал за ' + m + ' ' + plural(m, 'ход', 'хода', 'ходов'),
+          main: 'Твой ход'
+        };
       }
-      if (this.puzzle.solvable) {
-        return { result: 'Не решено', sub: 'можно было решить' };
-      }
-      return { result: 'Не судьба', sub: 'эта игра и не собиралась' };
+      return {
+        result: 'Сдался на ' + m + '-м',
+        main: 'Твой ход'
+      };
     }
 
     showToast(message) {
