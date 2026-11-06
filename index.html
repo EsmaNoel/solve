@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7ebd4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1410" media="(prefers-color-scheme: dark)">
+<title>Решай · Пятнашки по-русски</title>
+<link rel="preconnect" href="https://st.max.ru">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f7ebd4;
+    --board: #4a8560;
+    --board-2: #37684a;
+    --tile: #ecc896;
+    --tile-edge: #d4a870;
+    --ink: #3a2418;
+    --muted: #8e6f50;
+    --accent: #c94a3d;
+    --gold: #e0b850;
+    --line: rgba(58, 36, 24, 0.14);
+    --snow: rgba(90, 120, 160, 0.72);
+    --candy: rgba(201, 74, 61, 0.78);
+    --overlay: rgba(58, 36, 24, 0.55);
+    --amber: rgba(224, 184, 80, 0.55);
+    --serif: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "PT Serif", "Noto Serif", "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Menlo", "Consolas", "Courier New", monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    position: relative;
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding:
+      max(20px, env(safe-area-inset-top))
+      max(16px, env(safe-area-inset-right))
+      max(20px, env(safe-area-inset-bottom))
+      max(16px, env(safe-area-inset-left));
+    overflow-x: hidden;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      radial-gradient(2.5px 2.5px at 20% 10%, var(--snow) 50%, transparent 51%),
+      radial-gradient(3px 3px at 60% 30%, var(--snow) 50%, transparent 51%),
+      radial-gradient(2.5px 2.5px at 35% 80%, var(--snow) 50%, transparent 51%),
+      radial-gradient(3px 3px at 75% 20%, var(--candy) 50%, transparent 51%),
+      radial-gradient(2.5px 2.5px at 15% 60%, var(--candy) 50%, transparent 51%);
+    background-size: 200px 200px, 260px 260px, 180px 180px, 480px 480px, 420px 420px;
+    animation: snowfall 28s linear infinite;
+  }
+  .splash {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: radial-gradient(ellipse at center, #1a1410 0%, #0b0806 75%);
+    overflow: hidden;
+    transition: opacity 500ms ease;
+  }
+  .splash.hidden { opacity: 0; pointer-events: none; }
+  .splash-scene {
+    position: absolute;
+    inset: 0;
+    perspective: 700px;
+    perspective-origin: 50% 30%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .splash-text {
+    transform-origin: 50% 100%;
+    animation: crawl 40s linear forwards;
+    color: #f5e0a8;
+    text-align: center;
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.8;
+    max-width: 82vw;
+    padding: 0 20px;
+    letter-spacing: 0.02em;
+    text-shadow:
+      0 0 12px rgba(240, 214, 138, 0.35),
+      0 2px 6px rgba(0, 0, 0, 0.9);
+  }
+  .splash-text p { margin: 0 0 1.4em; }
+  .splash-final { color: #e8c860; font-style: italic; }
+  @keyframes crawl {
+    0%   { transform: translateY(80vh) rotateX(22deg) scale(1); opacity: 0; }
+    3%   { opacity: 1; }
+    94%  { opacity: 1; }
+    100% { transform: translateY(-110vh) rotateX(22deg) scale(0.7); opacity: 0; }
+  }
+  .splash-skip, .splash-sound {
+    position: absolute;
+    background: transparent;
+    border: 1px solid rgba(240, 214, 138, 0.4);
+    color: #f0d68a;
+    cursor: pointer;
+    z-index: 2;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .splash-skip {
+    bottom: max(24px, env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-size: 14px;
+    letter-spacing: 0.06em;
+  }
+  .splash-skip:active { background: rgba(240, 214, 138, 0.1); }
+  .splash-sound {
+    top: max(20px, env(safe-area-inset-top));
+    right: max(20px, env(safe-area-inset-right));
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    font-size: 18px;
+  }
+  .splash-sound.playing { background: rgba(240, 214, 138, 0.15); }
+  .game {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand {
+    width: min(88vw, 360px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 4px;
+  }
+  .brand-title {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--board);
+    margin: 0;
+  }
+  .brand-title::before, .brand-title::after {
+    content: '';
+    flex: 0 1 80px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    opacity: 0.7;
+  }
+  .brand-title::after {
+    background: linear-gradient(to left, transparent, var(--gold), transparent);
+  }
+  .brand-subtitle {
+    font-family: var(--serif);
+    font-size: 12px;
+    font-style: italic;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin: 0;
+  }
+  .brand-holiday {
+    font-family: var(--serif);
+    font-size: 10px;
+    font-style: italic;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    margin: 6px 0 0;
+    opacity: 0.9;
+  }
+  .board {
+    position: relative;
+    width: min(88vw, 360px);
+    aspect-ratio: 1 / 1;
+    background: linear-gradient(180deg, var(--board), var(--board-2));
+    border-radius: 18px;
+    touch-action: none;
+    box-shadow:
+      inset 0 0 0 2px var(--gold),
+      inset 0 0 0 3px var(--accent),
+      inset 0 0 40px rgba(0, 0, 0, 0.18),
+      0 3px 14px rgba(58, 36, 24, 0.18);
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+  .board.ready { opacity: 1; }
+  .tile {
+    position: absolute;
+    top: 0; left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--tile);
+    color: var(--ink);
+    border: 1px solid rgba(58, 36, 24, 0.28);
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    box-shadow:
+      inset 0 -2px 0 var(--tile-edge),
+      0 1px 2px rgba(58, 36, 24, 0.14);
+    transition: transform 100ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    will-change: transform;
+  }
+  .tile[data-value="1"], .tile[data-value="15"] {
+    color: var(--accent);
+    text-shadow: 0 0 10px var(--amber);
+  }
+  .board.no-anim .tile { transition: none; }
+  .status-row {
+    width: min(88vw, 360px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0;
+  }
+  .matryoshka-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    -webkit-tap-highlight-color: transparent;
+    opacity: 0.9;
+    transition: opacity 120ms ease, transform 120ms ease;
+  }
+  .matryoshka-btn:hover { opacity: 1; }
+  .matryoshka-btn:active { transform: scale(0.94); }
+  .counter {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    margin: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+  .controls {
+    display: flex;
+    gap: 10px;
+    width: min(88vw, 360px);
+  }
+  .btn {
+    flex: 1;
+    padding: 13px 16px;
+    border: 1px solid var(--line);
+    background: var(--tile);
+    color: var(--ink);
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 80ms ease, filter 120ms ease, box-shadow 120ms ease;
+    box-shadow:
+      0 1px 2px rgba(58, 36, 24, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active {
+    transform: translateY(1px);
+    filter: brightness(0.97);
+  }
+  .btn-accent {
+    background: var(--accent);
+    color: #fff;
+    border-color: transparent;
+    box-shadow:
+      0 1px 3px rgba(58, 36, 24, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+  .btn-accent:active { filter: brightness(0.92); }
+  .btn-quiet {
+    background: transparent;
+    color: var(--muted);
+    border-color: transparent;
+    box-shadow: none;
+  }
+  .btn-quiet:active {
+    background: rgba(0, 0, 0, 0.04);
+    filter: none;
+    transform: none;
+  }
+  .reveal, .challenge-landing {
+    width: min(88vw, 360px);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: fade 220ms ease;
+  }
+  .reveal-card {
+    padding: 22px 22px 20px;
+    background: var(--tile);
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    text-align: center;
+    box-shadow:
+      0 2px 8px rgba(58, 36, 24, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+  .reveal-ornament {
+    color: var(--accent);
+    font-size: 12px;
+    line-height: 1;
+    margin-bottom: 10px;
+    letter-spacing: 0.4em;
+    opacity: 0.85;
+  }
+  .reveal-text {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--ink);
+  }
+  .reveal-meta {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--muted);
+    font-family: var(--serif);
+    font-style: italic;
+  }
+  .challenge-sub {
+    margin: 0 0 4px;
+    font-size: 13px;
+    color: var(--muted);
+    font-family: var(--sans);
+    letter-spacing: 0.02em;
+  }
+  .challenge-krug {
+    margin: 0;
+    font-size: 15px;
+    color: var(--accent);
+    font-family: var(--serif);
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .reveal-krug {
+    margin: 2px 0 0;
+    text-align: center;
+    font-size: 12px;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    opacity: 0.95;
+  }
+  .reveal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .stats {
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+    color: var(--muted);
+    max-width: min(88vw, 360px);
+    min-height: 1em;
+  }
+  .footer-note {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--muted);
+    text-align: center;
+    max-width: min(88vw, 360px);
+    margin: 0;
+    opacity: 0.85;
+  }
+  .hidden { display: none !important; }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes snowfall {
+    from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+    to   { background-position: 0 200px, 0 260px, 0 180px, 0 480px, 0 420px; }
+  }
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: max(24px, env(safe-area-inset-bottom));
+    transform: translateX(-50%) translateY(20px);
+    padding: 11px 20px;
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-size: 14px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 180ms ease, transform 180ms ease;
+    z-index: 100;
+    max-width: min(80vw, 320px);
+    text-align: center;
+    line-height: 1.4;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .win-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: var(--overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fade 320ms ease;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+  }
+  .confetti-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .win-content {
+    position: relative;
+    z-index: 1;
+    width: min(88vw, 360px);
+    background: var(--tile);
+    border-radius: 16px;
+    border: 2px solid var(--gold);
+    padding: 28px 22px 22px;
+    text-align: center;
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .win-ornament {
+    color: var(--accent);
+    font-size: 14px;
+    letter-spacing: 0.4em;
+    margin: 0;
+    opacity: 0.9;
+  }
+  .win-title {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+    letter-spacing: 0.06em;
+  }
+  .win-meta {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--muted);
+    margin: 0;
+  }
+  .win-matryoshka { margin: 8px 0; display: block; }
+  .win-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-top: 6px;
+  }
+  .thanks-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 160;
+    background: var(--overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fade 220ms ease;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+  }
+  .thanks-card {
+    width: min(88vw, 340px);
+    background: var(--tile);
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    padding: 24px 22px 20px;
+    text-align: center;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .thanks-ornament {
+    color: var(--accent);
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    opacity: 0.85;
+  }
+  .thanks-text {
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--ink);
+    margin: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+    body::after { animation: none; }
+    .splash-text { animation-duration: 0.01ms; }
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1410;
+      --board: #2f5d42;
+      --board-2: #224633;
+      --tile: #b07f48;
+      --tile-edge: #8a5f30;
+      --ink: #f2e2c2;
+      --muted: #c8b294;
+      --accent: #e05a4a;
+      --gold: #e0b850;
+      --line: rgba(242, 226, 194, 0.14);
+      --snow: rgba(255, 255, 255, 0.95);
+      --candy: rgba(230, 90, 74, 0.9);
+      --overlay: rgba(0, 0, 0, 0.7);
+      --amber: rgba(240, 200, 90, 0.7);
+    }
+    .tile {
+      border-color: rgba(0, 0, 0, 0.35);
+      box-shadow:
+        inset 0 -2px 0 var(--tile-edge),
+        0 1px 2px rgba(0, 0, 0, 0.35);
+    }
+    .board {
+      box-shadow:
+        inset 0 0 0 2px var(--gold),
+        inset 0 0 0 3px var(--accent),
+        inset 0 0 40px rgba(0, 0, 0, 0.35),
+        0 3px 16px rgba(0, 0, 0, 0.5);
+    }
+    .reveal-card {
+      box-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .btn {
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .win-content {
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .reveal-ornament,
+    .challenge-krug,
+    .win-ornament,
+    .thanks-ornament {
+      color: #e8c860;
+      opacity: 1;
+    }
+    .reveal-meta,
+    .challenge-sub,
+    .reveal-krug,
+    .win-meta {
+      color: #ecd0a8;
+    }
+  }
+</style>
+<script src="https://st.max.ru/js/max-web-app.js" defer></script>
+</head>
+<body>
+
+<div class="splash hidden" id="splash">
+  <button class="splash-sound" id="splashSound" type="button" aria-label="Звук">♪</button>
+  <div class="splash-scene">
+    <div class="splash-text" id="splashText">
+      <p>В некотором царстве,<br>в тридесятом государстве,<br>там, где кнопочные телефоны<br>ещё помнят тепло ладони,<br>а первые флешки<br>хранят чужие секреты, —<br>живёт игра.</p>
+      <p>В ней есть расклады,<br>которые не собрать ни за что.<br>Какой достанется тебе —<br>неведомо.</p>
+      <p>Расставь числа от 1 до 15<br>по порядку:<br>от первой клетки — до последней.</p>
+      <p>Соберёшь — тебе аплодисменты.<br>Сдашься — значит, не судьба.</p>
+      <p class="splash-final">Удачи, добрый молодец.<br>Или красна девица.</p>
+    </div>
+  </div>
+  <button class="splash-skip" id="splashSkip" type="button">Пропустить</button>
+</div>
+
+<main class="game">
+  <header class="brand">
+    <h1 class="brand-title">Решай</h1>
+    <p class="brand-subtitle">пятнашки по-русски</p>
+    <p class="brand-holiday">❄ под Рождество ❄</p>
+  </header>
+
+  <div class="board" id="board" role="application" aria-label="Пятнашки 4 на 4"></div>
+
+  <div class="status-row">
+    <button class="matryoshka-btn" id="matryoshkaBtn" type="button" aria-label="Спасибо разработчикам">
+      <canvas id="matryoshkaSmall"></canvas>
+    </button>
+    <p class="counter" id="counter">ходов · <span id="movesCounter">0</span></p>
+  </div>
+
+  <div class="controls" id="controls">
+    <button class="btn" id="shuffleBtn" type="button">Перемешать</button>
+    <button class="btn" id="surrenderBtn" type="button">Сдаться</button>
+  </div>
+
+  <div class="challenge-landing hidden" id="challengeLanding">
+    <div class="reveal-card">
+      <div class="reveal-ornament" aria-hidden="true">❄ ✦ ❄</div>
+      <p class="challenge-sub">Тебе передали забаву</p>
+      <p class="challenge-krug" id="challengeKrug">Прими первое рукопожатие.</p>
+    </div>
+    <div class="reveal-actions">
+      <button class="btn btn-accent" id="acceptChallengeBtn" type="button">Принять</button>
+    </div>
+  </div>
+
+  <div class="reveal hidden" id="reveal">
+    <div class="reveal-card">
+      <div class="reveal-ornament" aria-hidden="true">❄ ✦ ❄</div>
+      <p class="reveal-text" id="revealText" aria-live="polite"></p>
+      <p class="reveal-meta" id="revealMeta"></p>
+    </div>
+    <div class="reveal-actions">
+      <p class="reveal-krug">Жму руку за попытку. Передай рукопожатие дальше!</p>
+      <button class="btn btn-accent" id="transferBtn" type="button">Передать забаву</button>
+      <button class="btn" id="againBtn" type="button">Ещё раз</button>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <p class="footer-note">Пока искала работу — сделала забаву. Теперь твой ход.</p>
+</main>
+
+<div class="win-overlay hidden" id="winOverlay">
+  <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+  <div class="win-content">
+    <p class="win-ornament">❄ ✦ ❄</p>
+    <h2 class="win-title">Решено!</h2>
+    <p class="win-meta" id="winMeta"></p>
+    <canvas class="win-matryoshka" id="matryoshkaBig"></canvas>
+    <div class="win-actions">
+      <p class="reveal-krug">Жму руку за попытку. Передай рукопожатие дальше!</p>
+      <button class="btn btn-accent" id="winTransferBtn" type="button">Передать забаву</button>
+      <button class="btn" id="winAgainBtn" type="button">Ещё раз</button>
+    </div>
+  </div>
+</div>
+
+<div class="thanks-overlay hidden" id="thanksOverlay">
+  <div class="thanks-card">
+    <div class="thanks-ornament">❄ ✦ ❄</div>
+    <p class="thanks-text">Спасибо всем, кто участвовал в разработке игры — я ценю ваш вклад.</p>
+    <button class="btn" id="thanksClose" type="button">Закрыть</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  // === Константы ===
+  const SIZE = 4;
+  const TILE_COUNT = SIZE * SIZE;
+  const PAD = 8;
+  const GAP = 8;
+  const BAG_SIZE = 10;
+  const GOOD_RATIO = 0.8;
+  const STATS_KEY = 'reshay.stats.v1';
+  const SPLASH_KEY = 'reshay.splash.seen.v1';
+  const SWIPE_THRESHOLD = 24;
+  const SWIPE_MAX_TIME = 700;
+
+  // === Cloudflare Worker: вставь URL сюда ===
+  const ANALYTICS_URL = '';
+
+  const trackEvent = (name, value) => {
+    if (!ANALYTICS_URL) return;
+    try {
+      const url = ANALYTICS_URL + '/track?event=' + encodeURIComponent(name) +
+        (value != null ? '&v=' + encodeURIComponent(String(value)) : '');
+      if (navigator.sendBeacon) navigator.sendBeacon(url);
+      else fetch(url, { method: 'POST', keepalive: true }).catch(() => {});
+    } catch (_) {}
+  };
+
+  const plural = (n, one, few, many) => {
+    const m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return one;
+    if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few;
+    return many;
+  };
+
+  const ordinalText = (n) => {
+    if (n === 1) return 'первое';
+    return n + '-е';
+  };
+
+  const shuffleArray = (arr) => {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = (Math.random() * (i + 1)) | 0;
+      const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  };
+
+  // === Аудио (игровые сигналы) ===
+  const AudioEngine = {
+    ctx: null,
+    ensure() {
+      if (!this.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        this.ctx = new AC();
+      }
+      if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+      return this.ctx;
+    },
+    move() {
+      try {
+        const ctx = this.ensure(); if (!ctx) return;
+        const t = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(400 + Math.random() * 60, t);
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.03, t + 0.006);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(t); osc.stop(t + 0.11);
+      } catch (_) {}
+    },
+    fanfare() {
+      try {
+        const ctx = this.ensure(); if (!ctx) return;
+        const notes = [261.63, 329.63, 392.00, 523.25];
+        const durs = [0.16, 0.16, 0.16, 0.55];
+        let t = ctx.currentTime;
+        notes.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.0001, t);
+          gain.gain.exponentialRampToValueAtTime(0.15, t + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + durs[i]);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(t); osc.stop(t + durs[i] + 0.05);
+          t += durs[i];
+        });
+      } catch (_) {}
+    },
+    applause() {
+      try {
+        const ctx = this.ensure(); if (!ctx) return;
+        const dur = 1.6;
+        const bufSize = Math.floor(ctx.sampleRate * dur);
+        const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * 0.35;
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        const gain = ctx.createGain();
+        const now = ctx.currentTime;
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.12, now + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 2200;
+        filter.Q.value = 0.6;
+        src.connect(filter).connect(gain).connect(ctx.destination);
+        src.start(now);
+      } catch (_) {}
+    }
+  };
+
+  // === Музыка заставки ===
+  const SplashAudio = {
+    ctx: null,
+    active: false,
+    timers: [],
+    _oscNodes: [],
+    init() {
+      if (!this.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        try { this.ctx = new AC(); } catch (_) { return null; }
+      }
+      return this.ctx;
+    },
+    start(onChange) {
+      const ctx = this.init();
+      if (!ctx) { if (onChange) onChange(false); return; }
+      if (this.active) { if (onChange) onChange(true); return; }
+      if (ctx.state === 'running') {
+        this.active = true;
+        this._playPhrase();
+        if (onChange) onChange(true);
+        return;
+      }
+      ctx.resume().then(() => {
+        if (!this.active && this.ctx === ctx) {
+          this.active = true;
+          this._playPhrase();
+          if (onChange) onChange(true);
+        }
+      }).catch(() => { if (onChange) onChange(false); });
+    },
+    stop() {
+      this.active = false;
+      this.timers.forEach(t => clearTimeout(t));
+      this.timers = [];
+      this._oscNodes.forEach(node => {
+        try { node.stop(); } catch (_) {}
+      });
+      this._oscNodes = [];
+    },
+    _playPhrase() {
+      if (!this.active || !this.ctx) return;
+      const ctx = this.ctx;
+      const start = ctx.currentTime + 0.05;
+
+      const melody = [523.25, 587.33, 659.25, 783.99, 880.00, 783.99, 659.25, 523.25];
+      melody.forEach((freq, i) => {
+        const t = start + i * 0.22;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.1, t + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(t); osc.stop(t + 0.32);
+        this._oscNodes.push(osc);
+      });
+
+      [130.81, 196.00].forEach((freq, i) => {
+        const t = start + i * 0.9;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.06, t + 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(t); osc.stop(t + 0.95);
+        this._oscNodes.push(osc);
+      });
+
+      const timer = setTimeout(() => this._playPhrase(), 4000);
+      this.timers.push(timer);
+    }
+  };
+
+  // === Хранилище ===
+  class StorageAdapter {
+    get isMax() {
+      return !!(window.WebApp && window.WebApp.DeviceStorage);
+    }
+    async getItem(key) {
+      if (this.isMax) {
+        try {
+          const res = await window.WebApp.DeviceStorage.getItem(key);
+          return res ? res.value : null;
+        } catch (_) { return null; }
+      }
+      try { return localStorage.getItem(key); } catch (_) { return null; }
+    }
+    async setItem(key, value) {
+      if (this.isMax) {
+        try { await window.WebApp.DeviceStorage.setItem(key, value); } catch (_) {}
+        return;
+      }
+      try { localStorage.setItem(key, value); } catch (_) {}
+    }
+  }
+
+  // === Модель ===
+  class Puzzle {
+    constructor(tiles, solvable) {
+      this.tiles = tiles;
+      this.solvable = solvable;
+      this.moves = 0;
+      this.blank = tiles.indexOf(0);
+    }
+    static solvedArray() {
+      const t = new Array(TILE_COUNT);
+      for (let i = 0; i < TILE_COUNT - 1; i++) t[i] = i + 1;
+      t[TILE_COUNT - 1] = 0;
+      return t;
+    }
+    static isSolvedArray(tiles) {
+      for (let i = 0; i < TILE_COUNT - 1; i++) {
+        if (tiles[i] !== i + 1) return false;
+      }
+      return tiles[TILE_COUNT - 1] === 0;
+    }
+    static isSolvableArray(tiles) {
+      const flat = [];
+      for (let i = 0; i < TILE_COUNT; i++) {
+        if (tiles[i] !== 0) flat.push(tiles[i]);
+      }
+      let inv = 0;
+      for (let i = 0; i < flat.length; i++) {
+        for (let j = i + 1; j < flat.length; j++) {
+          if (flat[i] > flat[j]) inv++;
+        }
+      }
+      const blankRowFromBottom = SIZE - ((tiles.indexOf(0) / SIZE) | 0);
+      return (inv + blankRowFromBottom) % 2 === 1;
+    }
+    static swapAnyTwo(tiles) {
+      const pos = [];
+      for (let i = 0; i < TILE_COUNT; i++) if (tiles[i] !== 0) pos.push(i);
+      if (pos.length < 2) return tiles.slice();
+      const a = pos[(Math.random() * pos.length) | 0];
+      let b;
+      do { b = pos[(Math.random() * pos.length) | 0]; } while (b === a);
+      const c = tiles.slice();
+      const tmp = c[a]; c[a] = c[b]; c[b] = tmp;
+      return c;
+    }
+    static isAdjacent(a, b) {
+      const ra = (a / SIZE) | 0, ca = a % SIZE;
+      const rb = (b / SIZE) | 0, cb = b % SIZE;
+      return (
+        (ra === rb && Math.abs(ca - cb) === 1) ||
+        (ca === cb && Math.abs(ra - rb) === 1)
+      );
+    }
+    static generate(solvable) {
+      let t = shuffleArray(Puzzle.solvedArray());
+      if (Puzzle.isSolvedArray(t)) t = Puzzle.swapAnyTwo(t);
+      if (Puzzle.isSolvableArray(t) !== solvable) t = Puzzle.swapAnyTwo(t);
+      return new Puzzle(t, solvable);
+    }
+    isSolved() { return Puzzle.isSolvedArray(this.tiles); }
+    move(value) {
+      const idx = this.tiles.indexOf(value);
+      if (idx < 0) return null;
+      if (!Puzzle.isAdjacent(idx, this.blank)) return null;
+      const newPosition = this.blank;
+      this.tiles[this.blank] = value;
+      this.tiles[idx] = 0;
+      this.blank = idx;
+      this.moves++;
+      return newPosition;
+    }
+  }
+
+  class TypeBag {
+    constructor(goodRatio = GOOD_RATIO, bagSize = BAG_SIZE) {
+      this.bagSize = bagSize;
+      this.goodCount = Math.round(bagSize * goodRatio);
+      this.bag = [];
+    }
+    next() {
+      if (this.bag.length === 0) this.refill();
+      return this.bag.pop();
+    }
+    refill() {
+      const bag = new Array(this.bagSize);
+      for (let i = 0; i < this.bagSize; i++) bag[i] = i < this.goodCount;
+      shuffleArray(bag);
+      let guard = 0;
+      while (TypeBag.hasAdjacentFalse(bag) && guard++ < 200) shuffleArray(bag);
+      this.bag = bag;
+    }
+    static hasAdjacentFalse(bag) {
+      for (let i = 1; i < bag.length; i++) {
+        if (!bag[i] && !bag[i - 1]) return true;
+      }
+      return false;
+    }
+  }
+
+  class Stats {
+    constructor(storage) {
+      this.storage = storage;
+      this.solved = 0;
+      this.wasted = 0;
+      this.unsolvable = 0;
+      this.knowsUnsolvable = false;
+      this._writeChain = Promise.resolve();
+      this._loadedPromise = new Promise(resolve => { this._resolveLoaded = resolve; });
+    }
+    async load() {
+      try {
+        const raw = await this.storage.getItem(STATS_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (data && typeof data === 'object') {
+            this.solved = Math.max(0, data.solved | 0);
+            this.wasted = Math.max(0, data.wasted | 0);
+            this.unsolvable = Math.max(0, data.unsolvable | 0);
+            this.knowsUnsolvable = !!data.knowsUnsolvable;
+          }
+        }
+      } catch (_) {}
+      this._resolveLoaded();
+    }
+    _waitUntilLoaded() { return this._loadedPromise; }
+    save() {
+      const snapshot = JSON.stringify({
+        solved: this.solved,
+        wasted: this.wasted,
+        unsolvable: this.unsolvable,
+        knowsUnsolvable: this.knowsUnsolvable,
+      });
+      this._writeChain = this._writeChain
+        .catch(() => {})
+        .then(() => this.storage.setItem(STATS_KEY, snapshot));
+      return this._writeChain;
+    }
+    async recordSolved() { await this._waitUntilLoaded(); this.solved++; this.save(); }
+    async recordSurrender(solvable) {
+      await this._waitUntilLoaded();
+      if (solvable) this.wasted++;
+      else { this.unsolvable++; this.knowsUnsolvable = true; }
+      this.save();
+    }
+    render(el) {
+      const total = this.solved + this.wasted + this.unsolvable;
+      if (total === 0 && !this.knowsUnsolvable) { el.textContent = ''; return; }
+      let text = 'решено: ' + this.solved + ' · зряшных сдач: ' + this.wasted;
+      if (this.knowsUnsolvable) text += ' · нерешаемых: ' + this.unsolvable;
+      el.textContent = text;
+    }
+  }
+
+  // === Матрёшка ===
+  const Matryoshka = {
+    palette(tiles) {
+      let hash = 0;
+      for (let i = 0; i < tiles.length; i++) {
+        hash = ((hash << 5) - hash + tiles[i] * (i + 3)) | 0;
+      }
+      hash = Math.abs(hash) || 1;
+      const hue1 = hash % 360;
+      const hue2 = (hue1 + 100 + (hash >> 7) % 80) % 360;
+      const hue3 = (hue1 + 220 + (hash >> 13) % 80) % 360;
+      return {
+        body: 'hsl(' + hue1 + ', 52%, 48%)',
+        bodyDark: 'hsl(' + hue1 + ', 55%, 38%)',
+        face: 'hsl(' + ((hue1 + 30) % 360) + ', 45%, 88%)',
+        scarf: 'hsl(' + hue2 + ', 58%, 52%)',
+        accent: 'hsl(' + hue3 + ', 62%, 55%)',
+        eye: '#2a1a10'
+      };
+    },
+    draw(ctx, size, tiles, handshake, detailed) {
+      const c = this.palette(tiles);
+      const cx = size / 2;
+      const w = size * 0.62;
+      const h = size * 0.88;
+      const top = size * 0.08;
+      const hh = Math.min(handshake || 1, 8);
+
+      ctx.fillStyle = c.body;
+      ctx.beginPath();
+      ctx.moveTo(cx, top);
+      ctx.bezierCurveTo(cx + w * 0.5, top + h * 0.18, cx + w * 0.55, top + h * 0.55, cx + w * 0.5, top + h * 0.78);
+      ctx.quadraticCurveTo(cx + w * 0.5, top + h, cx, top + h);
+      ctx.quadraticCurveTo(cx - w * 0.5, top + h, cx - w * 0.5, top + h * 0.78);
+      ctx.bezierCurveTo(cx - w * 0.55, top + h * 0.55, cx - w * 0.5, top + h * 0.18, cx, top);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = c.bodyDark;
+      ctx.beginPath();
+      ctx.moveTo(cx - w * 0.5, top + h * 0.82);
+      ctx.quadraticCurveTo(cx, top + h * 1.02, cx + w * 0.5, top + h * 0.82);
+      ctx.lineTo(cx + w * 0.5, top + h * 0.95);
+      ctx.quadraticCurveTo(cx, top + h * 1.08, cx - w * 0.5, top + h * 0.95);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = c.face;
+      ctx.beginPath();
+      ctx.ellipse(cx, top + h * 0.33, w * 0.33, h * 0.22, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = c.scarf;
+      ctx.beginPath();
+      ctx.ellipse(cx, top + h * 0.14, w * 0.38, h * 0.12, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(cx + w * 0.28, top + h * 0.18);
+      ctx.lineTo(cx + w * 0.42, top + h * 0.32);
+      ctx.lineTo(cx + w * 0.22, top + h * 0.3);
+      ctx.closePath();
+      ctx.fill();
+
+      if (detailed) {
+        ctx.fillStyle = c.eye;
+        ctx.beginPath();
+        ctx.arc(cx - w * 0.11, top + h * 0.33, size * 0.018, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(cx + w * 0.11, top + h * 0.33, size * 0.018, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(201,74,61,0.35)';
+        ctx.beginPath();
+        ctx.arc(cx - w * 0.18, top + h * 0.4, size * 0.025, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(cx + w * 0.18, top + h * 0.4, size * 0.025, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = c.accent;
+      const dotCount = Math.min(hh, detailed ? 8 : 4);
+      for (let i = 0; i < dotCount; i++) {
+        const row = Math.floor(i / 3);
+        const col = i % 3;
+        const dotX = cx + (col - 1) * w * 0.16;
+        const dotY = top + h * 0.6 + row * h * 0.06;
+        const r = detailed ? size * 0.014 : size * 0.035;
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  };
+
+  // === Доска ===
+  class BoardView {
+    constructor(boardEl, onTileClick) {
+      this.el = boardEl;
+      this.cellSize = 40;
+      this.tileEls = new Map();
+      this.createTiles();
+      this.el.addEventListener('click', (e) => {
+        const tile = e.target.closest('.tile');
+        if (!tile) return;
+        const v = Number(tile.dataset.value);
+        if (Number.isFinite(v)) onTileClick(v);
+      });
+    }
+    createTiles() {
+      const frag = document.createDocumentFragment();
+      for (let v = 1; v < TILE_COUNT; v++) {
+        const el = document.createElement('div');
+        el.className = 'tile';
+        el.textContent = String(v);
+        el.dataset.value = String(v);
+        frag.appendChild(el);
+        this.tileEls.set(v, el);
+      }
+      this.el.appendChild(frag);
+    }
+    measure() {
+      const w = this.el.getBoundingClientRect().width || Math.min((window.innerWidth || 400) * 0.88, 360);
+      const free = w - PAD * 2 - GAP * (SIZE - 1);
+      this.cellSize = Math.max(20, free / SIZE);
+      const cs = this.cellSize;
+      const font = Math.round(cs * 0.42) + 'px';
+      this.tileEls.forEach((el) => {
+        el.style.width = cs + 'px';
+        el.style.height = cs + 'px';
+        el.style.fontSize = font;
+      });
+    }
+    applyTransform(el, index) {
+      const r = (index / SIZE) | 0;
+      const c = index % SIZE;
+      const x = PAD + c * (this.cellSize + GAP);
+      const y = PAD + r * (this.cellSize + GAP);
+      el.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+    }
+    renderAll(tiles) {
+      this.measure();
+      this.el.classList.add('no-anim');
+      for (let i = 0; i < tiles.length; i++) {
+        const v = tiles[i];
+        if (v === 0) continue;
+        const el = this.tileEls.get(v);
+        if (el) this.applyTransform(el, i);
+      }
+      void this.el.offsetWidth;
+      this.el.classList.remove('no-anim');
+      this.el.classList.add('ready');
+    }
+    moveTile(value, index) {
+      const el = this.tileEls.get(value);
+      if (el) this.applyTransform(el, index);
+    }
+    resize(tiles) { this.renderAll(tiles); }
+  }
+
+  // === Карточка шаринга ===
+  const ShareCard = {
+    readTheme() {
+      const style = getComputedStyle(document.documentElement);
+      const read = (n, fb) => (style.getPropertyValue(n).trim() || fb);
+      return {
+        bg: read('--bg', '#f7ebd4'),
+        board: read('--board', '#4a8560'),
+        ink: read('--ink', '#3a2418'),
+        muted: read('--muted', '#8e6f50'),
+        accent: read('--accent', '#c94a3d'),
+        gold: read('--gold', '#e0b850'),
+      };
+    },
+    render({ tiles, handshake, result, sub }) {
+      const S = 1080;
+      const canvas = document.createElement('canvas');
+      canvas.width = S; canvas.height = S;
+      const ctx = canvas.getContext('2d');
+      const c = this.readTheme();
+
+      ctx.fillStyle = c.bg;
+      ctx.fillRect(0, 0, S, S);
+
+      const flakes = [
+        [80,130],[140,95],[S-80,150],[S-140,110],
+        [70,S-200],[S-90,S-180],[110,S-280],[S-110,S-300],
+        [210,85],[S-220,95],[S-55,420],[75,540],
+        [55,S-70],[S-55,S-60],[S/2-260,180],[S/2+260,170]
+      ];
+      ctx.fillStyle = c.muted;
+      ctx.globalAlpha = 0.4;
+      for (const [x, y] of flakes) {
+        ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      ctx.strokeStyle = c.accent;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(48, 48, S - 96, S - 96);
+      ctx.strokeStyle = c.gold;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(60, 60, S - 120, S - 120);
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      ctx.fillStyle = c.board;
+      ctx.font = '600 56px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
+      ctx.fillText('Р Е Ш А Й', S / 2, 130);
+
+      ctx.fillStyle = c.accent;
+      ctx.font = 'italic 400 22px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
+      ctx.fillText('❄ под Рождество ❄', S / 2, 172);
+
+      ctx.save();
+      ctx.translate(S / 2 - 220, 260);
+      Matryoshka.draw(ctx, 440, tiles, handshake, true);
+      ctx.restore();
+
+      ctx.fillStyle = c.ink;
+      ctx.font = '700 64px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
+      ctx.fillText(result, S / 2, 820);
+
+      ctx.fillStyle = c.muted;
+      ctx.font = 'italic 400 28px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
+      ctx.fillText(sub, S / 2, 875);
+
+      ctx.fillStyle = c.accent;
+      ctx.font = 'italic 400 24px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
+      ctx.fillText('передай забаву · тот же расклад', S / 2, S - 90);
+
+      return canvas;
+    }
+  };
+
+  // === Ссылка-вызов ===
+  class ChallengeLink {
+    static parse() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const zabava = params.get('zabava');
+        const krugStr = params.get('krug');
+        const result = { tiles: null, handshake: 1 };
+        if (zabava) {
+          const parts = zabava.split(',').map(s => parseInt(s, 10));
+          if (parts.length === TILE_COUNT) {
+            const seen = new Set(parts);
+            const valid = seen.size === TILE_COUNT && parts.every(n => Number.isInteger(n) && n >= 0 && n < TILE_COUNT);
+            if (valid && !Puzzle.isSolvedArray(parts)) result.tiles = parts;
+          }
+        }
+        if (krugStr) {
+          const n = parseInt(krugStr, 10);
+          if (Number.isInteger(n) && n > 0 && n < 100000) result.handshake = n;
+        }
+        return result;
+      } catch (_) { return { tiles: null, handshake: 1 }; }
+    }
+    static build(tiles, handshake) {
+      const params = new URLSearchParams();
+      params.set('zabava', tiles.join(','));
+      params.set('krug', String(handshake));
+      return window.location.origin + window.location.pathname + '?' + params.toString();
+    }
+    static clear() {
+      try { history.replaceState({}, '', window.location.pathname); } catch (_) {}
+    }
+  }
+
+  // === Конфетти ===
+  class Confetti {
+    constructor(canvas) {
+      this.canvas = canvas;
+      this.ctx = null;
+      this.raf = null;
+      this.stopped = true;
+      this.particles = [];
+      this.dims = { w: 0, h: 0 };
+      this.tick = this.tick.bind(this);
+    }
+    start() {
+      if (!this.canvas) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      this.ctx = this.canvas.getContext('2d');
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      this.canvas.width = w * dpr;
+      this.canvas.height = h * dpr;
+      this.canvas.style.width = w + 'px';
+      this.canvas.style.height = h + 'px';
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      this.dims = { w, h };
+      this.particles = this._makeParticles(w, h);
+      this.stopped = false;
+      this.raf = requestAnimationFrame(this.tick);
+    }
+    stop() {
+      this.stopped = true;
+      if (this.raf) { cancelAnimationFrame(this.raf); this.raf = null; }
+      if (this.ctx) this.ctx.clearRect(0, 0, this.dims.w, this.dims.h);
+      this.particles = [];
+    }
+    _makeParticles(w, h) {
+      const colors = ['#c94a3d', '#e0b850', '#4a8560', '#ecc896', '#ffffff', '#e05a4a'];
+      const list = [];
+      for (let i = 0; i < 140; i++) {
+        list.push({
+          x: Math.random() * w,
+          y: -20 - Math.random() * h * 0.5,
+          vx: (Math.random() - 0.5) * 1.5,
+          vy: 2 + Math.random() * 3,
+          w: 6 + Math.random() * 8,
+          h: 8 + Math.random() * 10,
+          rot: Math.random() * Math.PI * 2,
+          vr: (Math.random() - 0.5) * 0.2,
+          color: colors[(Math.random() * colors.length) | 0]
+        });
+      }
+      return list;
+    }
+    tick() {
+      if (this.stopped) return;
+      if (document.hidden) { this.raf = requestAnimationFrame(this.tick); return; }
+      const { w, h } = this.dims;
+      const ctx = this.ctx;
+      ctx.clearRect(0, 0, w, h);
+      for (const p of this.particles) {
+        p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+        if (p.y > h + 30) { p.y = -30; p.x = Math.random() * w; }
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      }
+      this.raf = requestAnimationFrame(this.tick);
+    }
+  }
+
+  // === Контроллер ===
+  class Game {
+    constructor(dom) {
+      this.dom = dom;
+      this.storage = new StorageAdapter();
+      this.stats = new Stats(this.storage);
+      this.bag = new TypeBag(GOOD_RATIO, BAG_SIZE);
+      this.view = new BoardView(dom.board, (v) => this.handleTileClick(v));
+      this.confetti = new Confetti(dom.confettiCanvas);
+      this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      this.puzzle = null;
+      this.originalTiles = null;
+      this.state = 'idle';
+      this.locked = false;
+      this.currentHandshake = 1;
+      this.pendingTiles = null;
+      this.pendingHandshake = 1;
+      this._toastTimer = null;
+      this._swipe = null;
+      this._splashTimer = null;
+
+      this.bindEvents();
+      this.bindSwipe();
+      this.init();
+    }
+
+    init() {
+      let seen = false;
+      try { seen = localStorage.getItem(SPLASH_KEY) === '1'; } catch (_) {}
+      if (!seen) this.showSplash();
+      try { localStorage.setItem(SPLASH_KEY, '1'); } catch (_) {}
+
+      // базовое значение на случай запуска без ссылки
+      this.currentHandshake = 1;
+
+      const challenge = ChallengeLink.parse();
+      if (challenge.tiles) {
+        this.pendingTiles = challenge.tiles;
+        this.pendingHandshake = challenge.handshake;
+        this.state = 'challenge';
+        this.dom.challengeKrug.textContent = 'Прими ' + ordinalText(challenge.handshake) + ' рукопожатие.';
+        this.updateUI();
+      } else {
+        this.startGame();
+      }
+      this.bootstrap();
+      trackEvent('visit');
+    }
+
+    showSplash() {
+      const splash = this.dom.splash;
+      if (!splash) return;
+      splash.classList.remove('hidden');
+
+      const soundBtn = this.dom.splashSound;
+      const updateBtn = () => {
+        soundBtn.classList.toggle('playing', SplashAudio.active);
+      };
+
+      SplashAudio.start(updateBtn);
+
+      const onGesture = (e) => {
+        if (soundBtn.contains(e.target)) return;
+        if (!SplashAudio.active) {
+          SplashAudio.start(updateBtn);
+        }
+        if (SplashAudio.active) {
+          document.removeEventListener('pointerdown', onGesture, true);
+          document.removeEventListener('touchstart', onGesture, true);
+          document.removeEventListener('keydown', onGesture, true);
+        }
+      };
+      document.addEventListener('pointerdown', onGesture, true);
+      document.addEventListener('touchstart', onGesture, true);
+      document.addEventListener('keydown', onGesture, true);
+
+      soundBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (SplashAudio.active) SplashAudio.stop();
+        else SplashAudio.start(updateBtn);
+        updateBtn();
+      });
+
+      const close = () => {
+        SplashAudio.stop();
+        document.removeEventListener('pointerdown', onGesture, true);
+        document.removeEventListener('touchstart', onGesture, true);
+        document.removeEventListener('keydown', onGesture, true);
+        splash.classList.add('hidden');
+        if (this._splashTimer) { clearTimeout(this._splashTimer); this._splashTimer = null; }
+        window.setTimeout(() => {
+          if (splash.parentNode) splash.parentNode.removeChild(splash);
+        }, 600);
+      };
+
+      this.dom.splashSkip.addEventListener('click', close);
+      this._splashTimer = window.setTimeout(close, 42000);
+    }
+
+    async bootstrap() {
+      try {
+        await this.waitForBridge();
+        try { if (window.WebApp && window.WebApp.ready) window.WebApp.ready(); } catch (_) {}
+        await this.stats.load();
+        this.stats.render(this.dom.stats);
+      } catch (_) {}
+    }
+
+    waitForBridge() {
+      if (window.WebApp) return Promise.resolve();
+      return new Promise((resolve) => {
+        let done = false;
+        const finish = () => { if (!done) { done = true; resolve(); } };
+        document.addEventListener('DOMContentLoaded', finish, { once: true });
+        window.addEventListener('load', finish, { once: true });
+        setTimeout(finish, 1500);
+      });
+    }
+
+    setMovesDisplay(n) {
+      if (this.dom.movesCounter) this.dom.movesCounter.textContent = String(n);
+    }
+
+    drawMatryoshkas() {
+      if (!this.originalTiles) return;
+      this._drawMatryoshka(this.dom.matryoshkaSmall, 28, false);
+      this._drawMatryoshka(this.dom.matryoshkaBig, 120, true);
+    }
+
+    _drawMatryoshka(canvas, cssSize, detailed) {
+      if (!canvas || !this.originalTiles) return;
+      const dpr = this.dpr;
+      const target = cssSize * dpr;
+      if (canvas.width !== target) {
+        canvas.width = target;
+        canvas.height = target;
+        canvas.style.width = cssSize + 'px';
+        canvas.style.height = cssSize + 'px';
+      }
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(dpr, dpr);
+      Matryoshka.draw(ctx, cssSize, this.originalTiles, this.currentHandshake, detailed);
+    }
+
+    bindSwipe() {
+      const el = this.dom.board;
+
+      el.addEventListener('touchstart', (e) => {
+        if (this.state !== 'playing' || this.locked) return;
+        if (e.touches.length !== 1) { this._swipe = null; return; }
+        const t = e.touches[0];
+        this._swipe = { x: t.clientX, y: t.clientY, t: Date.now() };
+      }, { passive: true });
+
+      el.addEventListener('touchend', (e) => {
+        if (!this._swipe) return;
+        if (this.state !== 'playing' || this.locked) { this._swipe = null; return; }
+        const t = e.changedTouches[0];
+        const dx = t.clientX - this._swipe.x;
+        const dy = t.clientY - this._swipe.y;
+        const dt = Date.now() - this._swipe.t;
+        this._swipe = null;
+        if (dt > SWIPE_MAX_TIME) return;
+        if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) return;
+        e.preventDefault();
+        const dr = Math.abs(dx) > Math.abs(dy) ? 0 : (dy > 0 ? 1 : -1);
+        const dc = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : -1) : 0;
+        this.trySwipe(dr, dc);
+      }, { passive: false });
+
+      el.addEventListener('touchcancel', () => { this._swipe = null; }, { passive: true });
+    }
+
+    trySwipe(dr, dc) {
+      if (!this.puzzle) return;
+      const blankR = (this.puzzle.blank / SIZE) | 0;
+      const blankC = this.puzzle.blank % SIZE;
+      const tileR = blankR - dr;
+      const tileC = blankC - dc;
+      if (tileR < 0 || tileR >= SIZE || tileC < 0 || tileC >= SIZE) return;
+      const value = this.puzzle.tiles[tileR * SIZE + tileC];
+      if (value) this.handleTileClick(value);
+    }
+
+    bindEvents() {
+      this.dom.shuffleBtn.addEventListener('click', () => this.startGame());
+      this.dom.surrenderBtn.addEventListener('click', () => this.surrender());
+      this.dom.againBtn.addEventListener('click', () => {
+        trackEvent('replay');
+        this.startGame();
+      });
+      this.dom.transferBtn.addEventListener('click', () => this.transfer());
+      this.dom.acceptChallengeBtn.addEventListener('click', () => this.acceptChallenge());
+      this.dom.winTransferBtn.addEventListener('click', () => this.transfer());
+      this.dom.winAgainBtn.addEventListener('click', () => {
+        this.confetti.stop();
+        trackEvent('replay');
+        this.startGame();
+      });
+      this.dom.matryoshkaBtn.addEventListener('click', () => {
+        this.dom.thanksOverlay.classList.remove('hidden');
+      });
+      this.dom.thanksClose.addEventListener('click', () => {
+        this.dom.thanksOverlay.classList.add('hidden');
+      });
+      this.dom.thanksOverlay.addEventListener('click', (e) => {
+        if (e.target === this.dom.thanksOverlay) this.dom.thanksOverlay.classList.add('hidden');
+      });
+
+      window.addEventListener('resize', () => {
+        if (this.puzzle) this.view.resize(this.puzzle.tiles);
+      });
+      window.addEventListener('keydown', (e) => this.handleKey(e));
+    }
+
+    startGame() {
+      ChallengeLink.clear();
+      const solvable = this.bag.next();
+      this.puzzle = Puzzle.generate(solvable);
+      this.originalTiles = this.puzzle.tiles.slice();
+      this.state = 'playing';
+      this.locked = false;
+      this.setMovesDisplay(0);
+      this.updateUI();
+      this.view.renderAll(this.puzzle.tiles);
+      this.drawMatryoshkas();
+    }
+
+    acceptChallenge() {
+      if (!this.pendingTiles) return;
+      ChallengeLink.clear();
+      this.puzzle = new Puzzle(this.pendingTiles.slice(), Puzzle.isSolvableArray(this.pendingTiles));
+      this.originalTiles = this.puzzle.tiles.slice();
+      this.currentHandshake = this.pendingHandshake || 1;
+      this.pendingTiles = null;
+      this.state = 'playing';
+      this.locked = false;
+      this.setMovesDisplay(0);
+      this.updateUI();
+      this.view.renderAll(this.puzzle.tiles);
+      this.drawMatryoshkas();
+      trackEvent('handshake', this.currentHandshake);
+    }
+
+    handleTileClick(value) {
+      if (this.state !== 'playing' || this.locked) return;
+      const newIdx = this.puzzle.move(value);
+      if (newIdx === null) return;
+      this.view.moveTile(value, newIdx);
+      AudioEngine.move();
+      this.setMovesDisplay(this.puzzle.moves);
+      if (this.puzzle.isSolved()) {
+        this.locked = true;
+        window.setTimeout(() => this.onSolved(), 220);
+      }
+    }
+
+    handleKey(e) {
+      if (this.state !== 'playing' || this.locked) return;
+      const p = this.puzzle;
+      const r = (p.blank / SIZE) | 0;
+      const c = p.blank % SIZE;
+      let target = -1;
+      if (e.key === 'ArrowLeft' && c < SIZE - 1) target = p.blank + 1;
+      else if (e.key === 'ArrowRight' && c > 0) target = p.blank - 1;
+      else if (e.key === 'ArrowUp' && r < SIZE - 1) target = p.blank + SIZE;
+      else if (e.key === 'ArrowDown' && r > 0) target = p.blank - SIZE;
+      if (target >= 0) {
+        e.preventDefault();
+        this.handleTileClick(p.tiles[target]);
+      }
+    }
+
+    onSolved() {
+      this.state = 'won';
+      const m = this.puzzle.moves;
+      this.dom.winMeta.textContent = m + ' ' + plural(m, 'ход', 'хода', 'ходов');
+      this.updateUI();
+      this.drawMatryoshkas();
+      AudioEngine.fanfare();
+      window.setTimeout(() => AudioEngine.applause(), 700);
+      this.confetti.start();
+      this.stats.recordSolved().then(() => this.stats.render(this.dom.stats));
+      trackEvent('win');
+      trackEvent('win_moves', m);
+    }
+
+    surrender() {
+      if (this.state !== 'playing' || this.locked) return;
+      this.locked = true;
+      this.state = 'lost';
+      const solvable = this.puzzle.solvable;
+      if (solvable) {
+        this.dom.revealText.textContent = 'Не решено.';
+        this.dom.revealMeta.textContent = 'Можно было решить. Уйти — твоё право.';
+        trackEvent('loss_solvable');
+      } else {
+        this.dom.revealText.textContent = 'Не судьба.';
+        this.dom.revealMeta.textContent = 'Эта игра и не собиралась.';
+        trackEvent('loss_unsolvable');
+      }
+      this.updateUI();
+      this.stats.recordSurrender(solvable).then(() => this.stats.render(this.dom.stats));
+    }
+
+    async transfer() {
+      if (!this.originalTiles) return;
+      if (this.state !== 'won' && this.state !== 'lost') return;
+      const nextHandshake = this.currentHandshake + 1;
+      const url = ChallengeLink.build(this.originalTiles, nextHandshake);
+
+      let file = null;
+      try {
+        const data = this.getShareData();
+        const canvas = ShareCard.render({
+          tiles: this.originalTiles,
+          handshake: this.currentHandshake,
+          result: data.result,
+          sub: data.sub
+        });
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+        if (blob) file = new File([blob], 'matryoshka.png', { type: 'image/png' });
+      } catch (_) {}
+
+      if (navigator.share) {
+        const shareData = {
+          title: 'Решай',
+          text: 'Тебе передали забаву. А слабо?',
+          url: url
+        };
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          shareData.files = [file];
+        }
+        try {
+          await navigator.share(shareData);
+          trackEvent('transfer');
+          return;
+        } catch (e) {
+          if (e && e.name === 'AbortError') return;
+        }
+      }
+
+      let copied = false;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(url);
+          copied = true;
+        }
+      } catch (_) {}
+      if (!copied) {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = url;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          copied = document.execCommand('copy');
+          document.body.removeChild(ta);
+        } catch (_) {}
+      }
+      if (copied) {
+        this.showToast('Ссылка скопирована');
+        trackEvent('transfer');
+      } else {
+        try { window.prompt('Скопируйте ссылку:', url); } catch (_) {}
+      }
+    }
+
+    getShareData() {
+      if (this.puzzle.isSolved()) {
+        const m = this.puzzle.moves;
+        return { result: 'Решено', sub: m + ' ' + plural(m, 'ход', 'хода', 'ходов') };
+      }
+      if (this.puzzle.solvable) {
+        return { result: 'Не решено', sub: 'можно было решить' };
+      }
+      return { result: 'Не судьба', sub: 'эта игра и не собиралась' };
+    }
+
+    showToast(message) {
+      const el = this.dom.toast;
+      el.textContent = message;
+      el.classList.add('show');
+      if (this._toastTimer) clearTimeout(this._toastTimer);
+      this._toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+    }
+
+    updateUI() {
+      const isChallenge = this.state === 'challenge';
+      const isPlaying = this.state === 'playing';
+      const isLost = this.state === 'lost';
+      const isWon = this.state === 'won';
+
+      this.dom.board.classList.toggle('hidden', isChallenge);
+      this.dom.statusRow.classList.toggle('hidden', isChallenge);
+      this.dom.controls.classList.toggle('hidden', isChallenge || isLost || isWon);
+      this.dom.surrenderBtn.classList.toggle('hidden', !isPlaying);
+      this.dom.challengeLanding.classList.toggle('hidden', !isChallenge);
+      this.dom.reveal.classList.toggle('hidden', !isLost);
+      this.dom.winOverlay.classList.toggle('hidden', !isWon);
+    }
+  }
+
+  // === Старт ===
+  new Game({
+    board: document.getElementById('board'),
+    statusRow: document.querySelector('.status-row'),
+    movesCounter: document.getElementById('movesCounter'),
+    matryoshkaBtn: document.getElementById('matryoshkaBtn'),
+    matryoshkaSmall: document.getElementById('matryoshkaSmall'),
+    matryoshkaBig: document.getElementById('matryoshkaBig'),
+    controls: document.getElementById('controls'),
+    shuffleBtn: document.getElementById('shuffleBtn'),
+    surrenderBtn: document.getElementById('surrenderBtn'),
+    challengeLanding: document.getElementById('challengeLanding'),
+    challengeKrug: document.getElementById('challengeKrug'),
+    acceptChallengeBtn: document.getElementById('acceptChallengeBtn'),
+    reveal: document.getElementById('reveal'),
+    revealText: document.getElementById('revealText'),
+    revealMeta: document.getElementById('revealMeta'),
+    transferBtn: document.getElementById('transferBtn'),
+    againBtn: document.getElementById('againBtn'),
+    stats: document.getElementById('stats'),
+    toast: document.getElementById('toast'),
+    splash: document.getElementById('splash'),
+    splashSkip: document.getElementById('splashSkip'),
+    splashSound: document.getElementById('splashSound'),
+    winOverlay: document.getElementById('winOverlay'),
+    winMeta: document.getElementById('winMeta'),
+    winTransferBtn: document.getElementById('winTransferBtn'),
+    winAgainBtn: document.getElementById('winAgainBtn'),
+    confettiCanvas: document.getElementById('confettiCanvas'),
+    thanksOverlay: document.getElementById('thanksOverlay'),
+    thanksClose: document.getElementById('thanksClose')
+  });
+})();
+</script>
+</body>
+</html>
