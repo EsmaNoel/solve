@@ -48,6 +48,8 @@
       max(20px, env(safe-area-inset-bottom))
       max(16px, env(safe-area-inset-left));
     overflow-x: hidden;
+    overscroll-behavior: none;
+    touch-action: manipulation;
   }
   body::after {
     content: '';
@@ -1552,7 +1554,15 @@
     async bootstrap() {
       try {
         await this.waitForBridge();
-        try { if (window.WebApp && window.WebApp.ready) window.WebApp.ready(); } catch (_) {}
+        if (window.WebApp) {
+          try { if (window.WebApp.ready) window.WebApp.ready(); } catch (_) {}
+          try { if (window.WebApp.expand) window.WebApp.expand(); } catch (_) {}
+          try {
+            if (typeof window.WebApp.disableVerticalSwipes === 'function') {
+              window.WebApp.disableVerticalSwipes();
+            }
+          } catch (_) {}
+        }
         await this.stats.load();
         this.stats.render(this.dom.stats);
       } catch (_) {}
@@ -1599,12 +1609,18 @@
     bindSwipe() {
       const el = this.dom.board;
 
-      el.addEventListener('touchstart', (e) => {
+      el.addEventListener('touchmove', (e) => {
+        if (!this._swipe) return;
         if (this.state !== 'playing' || this.locked) return;
-        if (e.touches.length !== 1) { this._swipe = null; return; }
+        if (e.touches.length !== 1) return;
         const t = e.touches[0];
-        this._swipe = { x: t.clientX, y: t.clientY, t: Date.now() };
-      }, { passive: true });
+        const dx = t.clientX - this._swipe.x;
+        const dy = t.clientY - this._swipe.y;
+        // Блокируем вертикальные жесты (вверх и вниз), чтобы MAX не закрывал окно
+        if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) {
+          e.preventDefault();
+        }
+      }, { passive: false });
 
       el.addEventListener('touchend', (e) => {
         if (!this._swipe) return;
