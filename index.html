@@ -1305,7 +1305,7 @@
       ctx.fillStyle = c.accent;
       ctx.font = 'italic 400 20px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
       ctx.fillText('❄ под Рождество ❄', S / 2, 208);
-      
+
       // матрёшка
       ctx.save();
       ctx.translate(S / 2 - 220, 250);
@@ -1608,6 +1608,13 @@
 
     bindSwipe() {
       const el = this.dom.board;
+
+      el.addEventListener('touchstart', (e) => {
+        if (this.state !== 'playing' || this.locked) return;
+        if (e.touches.length !== 1) { this._swipe = null; return; }
+        const t = e.touches[0];
+        this._swipe = { x: t.clientX, y: t.clientY, t: Date.now() };
+      }, { passive: true });
 
       el.addEventListener('touchmove', (e) => {
         if (!this._swipe) return;
