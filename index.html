@@ -51,6 +51,36 @@
     overscroll-behavior: none;
     touch-action: manipulation;
   }
+  .mobile-body {
+    overflow: hidden;
+    height: 100dvh;
+  }
+  .mobile-wrap {
+    position: absolute;
+    inset: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-x pan-y;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding:
+      max(20px, env(safe-area-inset-top))
+      max(16px, env(safe-area-inset-right))
+      max(20px, env(safe-area-inset-bottom))
+      max(16px, env(safe-area-inset-left));
+  }
+  .mobile-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: calc(100% + 1px);
+  }
   body::after {
     content: '';
     position: fixed;
@@ -619,93 +649,99 @@
 </head>
 <body>
 
-<div class="splash hidden" id="splash">
-  <button class="splash-sound" id="splashSound" type="button" aria-label="Звук">♪</button>
-  <div class="splash-scene">
-    <div class="splash-text" id="splashText">
-      <p>В некотором царстве,<br>в тридесятом государстве,<br>там, где кнопочные телефоны<br>ещё помнят тепло ладони,<br>а первые флешки<br>хранят чужие секреты, —<br>живёт игра.</p>
-      <p>В ней есть расклады,<br>которые не собрать ни за что.<br>Какой достанется тебе —<br>неведомо.</p>
-      <p>Расставь числа от 1 до 15<br>по порядку:<br>от первой клетки — до последней.</p>
-      <p>Соберёшь — тебе аплодисменты.<br>Сдашься — значит, не судьба.</p>
-      <p class="splash-final">Удачи, добрый молодец.<br>Или красна девица.</p>
+<div id="wrap">
+  <div id="content">
+
+    <div class="splash hidden" id="splash">
+      <button class="splash-sound" id="splashSound" type="button" aria-label="Звук">♪</button>
+      <div class="splash-scene">
+        <div class="splash-text" id="splashText">
+          <p>В некотором царстве,<br>в тридесятом государстве,<br>там, где кнопочные телефоны<br>ещё помнят тепло ладони,<br>а первые флешки<br>хранят чужие секреты, —<br>живёт игра.</p>
+          <p>В ней есть расклады,<br>которые не собрать ни за что.<br>Какой достанется тебе —<br>неведомо.</p>
+          <p>Расставь числа от 1 до 15<br>по порядку:<br>от первой клетки — до последней.</p>
+          <p>Соберёшь — тебе аплодисменты.<br>Сдашься — значит, не судьба.</p>
+          <p class="splash-final">Удачи, добрый молодец.<br>Или красна девица.</p>
+        </div>
+      </div>
+      <button class="splash-skip" id="splashSkip" type="button">Пропустить</button>
     </div>
+
+    <main class="game">
+      <header class="brand">
+        <h1 class="brand-title">Решай</h1>
+        <p class="brand-subtitle">пятнашки по-русски</p>
+        <p class="brand-holiday">❄ под Рождество ❄</p>
+      </header>
+
+      <div class="board" id="board" role="application" aria-label="Пятнашки 4 на 4"></div>
+
+      <div class="status-row">
+        <button class="matryoshka-btn" id="matryoshkaBtn" type="button" aria-label="Спасибо разработчикам">
+          <canvas id="matryoshkaSmall"></canvas>
+        </button>
+        <p class="counter" id="counter">ходов · <span id="movesCounter">0</span></p>
+      </div>
+
+      <div class="controls" id="controls">
+        <button class="btn" id="shuffleBtn" type="button">Перемешать</button>
+        <button class="btn" id="surrenderBtn" type="button">Сдаться</button>
+      </div>
+
+      <div class="challenge-landing hidden" id="challengeLanding">
+        <div class="reveal-card">
+          <div class="reveal-ornament" aria-hidden="true">❄ ✦ ❄</div>
+          <p class="challenge-sub">Тебе передали забаву</p>
+          <p class="challenge-krug" id="challengeKrug">Прими первое рукопожатие.</p>
+        </div>
+        <div class="reveal-actions">
+          <button class="btn btn-accent" id="acceptChallengeBtn" type="button">Принять</button>
+        </div>
+      </div>
+
+      <div class="reveal hidden" id="reveal">
+        <div class="reveal-card">
+          <div class="reveal-ornament" aria-hidden="true">❄ ✦ ❄</div>
+          <p class="reveal-text" id="revealText" aria-live="polite"></p>
+          <p class="reveal-meta" id="revealMeta"></p>
+        </div>
+        <div class="reveal-actions">
+          <p class="reveal-krug">Жму руку за попытку. Передай рукопожатие дальше!</p>
+          <button class="btn btn-accent" id="transferBtn" type="button">Передать забаву</button>
+          <button class="btn" id="againBtn" type="button">Ещё раз</button>
+        </div>
+      </div>
+
+      <div class="stats" id="stats"></div>
+      <p class="footer-note">Пока искала работу — сделала забаву. Теперь твой ход.</p>
+    </main>
+
+    <div class="win-overlay hidden" id="winOverlay">
+      <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+      <div class="win-content">
+        <p class="win-ornament">❄ ✦ ❄</p>
+        <h2 class="win-title">Решено!</h2>
+        <p class="win-meta" id="winMeta"></p>
+        <canvas class="win-matryoshka" id="matryoshkaBig"></canvas>
+        <div class="win-actions">
+          <p class="reveal-krug">Жму руку за попытку. Передай рукопожатие дальше!</p>
+          <button class="btn btn-accent" id="winTransferBtn" type="button">Передать забаву</button>
+          <button class="btn" id="winAgainBtn" type="button">Ещё раз</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="thanks-overlay hidden" id="thanksOverlay">
+      <div class="thanks-card">
+        <div class="thanks-ornament">❄ ✦ ❄</div>
+        <p class="thanks-text">Спасибо всем, кто участвовал в разработке игры — я ценю ваш вклад.</p>
+        <button class="btn" id="thanksClose" type="button">Закрыть</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" aria-live="polite"></div>
+
   </div>
-  <button class="splash-skip" id="splashSkip" type="button">Пропустить</button>
 </div>
-
-<main class="game">
-  <header class="brand">
-    <h1 class="brand-title">Решай</h1>
-    <p class="brand-subtitle">пятнашки по-русски</p>
-    <p class="brand-holiday">❄ под Рождество ❄</p>
-  </header>
-
-  <div class="board" id="board" role="application" aria-label="Пятнашки 4 на 4"></div>
-
-  <div class="status-row">
-    <button class="matryoshka-btn" id="matryoshkaBtn" type="button" aria-label="Спасибо разработчикам">
-      <canvas id="matryoshkaSmall"></canvas>
-    </button>
-    <p class="counter" id="counter">ходов · <span id="movesCounter">0</span></p>
-  </div>
-
-  <div class="controls" id="controls">
-    <button class="btn" id="shuffleBtn" type="button">Перемешать</button>
-    <button class="btn" id="surrenderBtn" type="button">Сдаться</button>
-  </div>
-
-  <div class="challenge-landing hidden" id="challengeLanding">
-    <div class="reveal-card">
-      <div class="reveal-ornament" aria-hidden="true">❄ ✦ ❄</div>
-      <p class="challenge-sub">Тебе передали забаву</p>
-      <p class="challenge-krug" id="challengeKrug">Прими первое рукопожатие.</p>
-    </div>
-    <div class="reveal-actions">
-      <button class="btn btn-accent" id="acceptChallengeBtn" type="button">Принять</button>
-    </div>
-  </div>
-
-  <div class="reveal hidden" id="reveal">
-    <div class="reveal-card">
-      <div class="reveal-ornament" aria-hidden="true">❄ ✦ ❄</div>
-      <p class="reveal-text" id="revealText" aria-live="polite"></p>
-      <p class="reveal-meta" id="revealMeta"></p>
-    </div>
-    <div class="reveal-actions">
-      <p class="reveal-krug">Жму руку за попытку. Передай рукопожатие дальше!</p>
-      <button class="btn btn-accent" id="transferBtn" type="button">Передать забаву</button>
-      <button class="btn" id="againBtn" type="button">Ещё раз</button>
-    </div>
-  </div>
-
-  <div class="stats" id="stats"></div>
-  <p class="footer-note">Пока искала работу — сделала забаву. Теперь твой ход.</p>
-</main>
-
-<div class="win-overlay hidden" id="winOverlay">
-  <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
-  <div class="win-content">
-    <p class="win-ornament">❄ ✦ ❄</p>
-    <h2 class="win-title">Решено!</h2>
-    <p class="win-meta" id="winMeta"></p>
-    <canvas class="win-matryoshka" id="matryoshkaBig"></canvas>
-    <div class="win-actions">
-      <p class="reveal-krug">Жму руку за попытку. Передай рукопожатие дальше!</p>
-      <button class="btn btn-accent" id="winTransferBtn" type="button">Передать забаву</button>
-      <button class="btn" id="winAgainBtn" type="button">Ещё раз</button>
-    </div>
-  </div>
-</div>
-
-<div class="thanks-overlay hidden" id="thanksOverlay">
-  <div class="thanks-card">
-    <div class="thanks-ornament">❄ ✦ ❄</div>
-    <p class="thanks-text">Спасибо всем, кто участвовал в разработке игры — я ценю ваш вклад.</p>
-    <button class="btn" id="thanksClose" type="button">Закрыть</button>
-  </div>
-</div>
-
-<div class="toast" id="toast" aria-live="polite"></div>
 
 <script>
 (function () {
@@ -722,6 +758,7 @@
   const SPLASH_KEY = 'reshay.splash.seen.v1';
   const SWIPE_THRESHOLD = 24;
   const SWIPE_MAX_TIME = 700;
+  const BOT_URL = 'https://max.ru/se14885717_bot';
 
   // === Cloudflare Worker: вставь URL сюда ===
   const ANALYTICS_URL = '';
@@ -756,7 +793,7 @@
     return arr;
   };
 
-  // === Аудио (игровые сигналы) ===
+  // === Аудио ===
   const AudioEngine = {
     ctx: null,
     ensure() {
@@ -1291,38 +1328,31 @@
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
-      // РЕШАЙ
       ctx.fillStyle = c.board;
       ctx.font = '600 56px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
       ctx.fillText('Р Е Ш А Й', S / 2, 130);
 
-      // пятнашки по-русски
       ctx.fillStyle = c.muted;
       ctx.font = 'italic 400 24px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
       ctx.fillText('пятнашки по-русски', S / 2, 172);
 
-      // под Рождество
       ctx.fillStyle = c.accent;
       ctx.font = 'italic 400 20px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
       ctx.fillText('❄ под Рождество ❄', S / 2, 208);
 
-      // матрёшка
       ctx.save();
       ctx.translate(S / 2 - 220, 250);
       Matryoshka.draw(ctx, 440, tiles, handshake, true);
       ctx.restore();
 
-      // Сдался на 18-м / Собрал за 42 хода
       ctx.fillStyle = c.muted;
       ctx.font = 'italic 400 36px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
       ctx.fillText(result, S / 2, 780);
 
-      // Твой ход
       ctx.fillStyle = c.ink;
       ctx.font = '700 76px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
       ctx.fillText(main, S / 2, 870);
 
-      // рукопожатие 6-е
       ctx.fillStyle = c.accent;
       ctx.font = 'italic 400 24px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
       ctx.fillText('рукопожатие ' + ordinalText(handshake), S / 2, 940);
@@ -1331,14 +1361,25 @@
     }
   };
 
-  // === Ссылка-вызов (формат #xxxx-xxxx-xxxx-xxxx-N) ===
+  // === Ссылка-вызов (deep link на бота MAX + fallback на hash) ===
   class ChallengeLink {
     static parse() {
       try {
-        const hash = window.location.hash.replace(/^#/, '');
-        if (!hash) return { tiles: null, handshake: 1 };
+        let raw = null;
 
-        const parts = hash.split('-');
+        if (window.WebApp && window.WebApp.initDataUnsafe) {
+          const sp = window.WebApp.initDataUnsafe.start_param ||
+                     window.WebApp.initDataUnsafe.startParam;
+          if (sp) raw = sp;
+        }
+
+        if (!raw) {
+          raw = window.location.hash.replace(/^#/, '');
+        }
+
+        if (!raw) return { tiles: null, handshake: 1 };
+
+        const parts = raw.split('-');
         if (parts.length < 4) return { tiles: null, handshake: 1 };
 
         const hex = parts.slice(0, 4).join('');
@@ -1372,7 +1413,8 @@
     static build(tiles, handshake) {
       const hex = tiles.map(v => v.toString(16)).join('');
       const grouped = hex.match(/.{4}/g).join('-');
-      return window.location.origin + window.location.pathname + '#' + grouped + '-' + handshake;
+      const payload = grouped + '-' + handshake;
+      return BOT_URL + '?startapp=' + payload;
     }
 
     static clear() {
@@ -1479,14 +1521,45 @@
       this.init();
     }
 
-    init() {
+    // === Главное изменение: init теперь async и ждёт MAX Bridge ===
+    async init() {
       let seen = false;
       try { seen = localStorage.getItem(SPLASH_KEY) === '1'; } catch (_) {}
       if (!seen) this.showSplash();
       try { localStorage.setItem(SPLASH_KEY, '1'); } catch (_) {}
 
-      this.currentHandshake = 1;
+      // Ждём, пока MAX Bridge загрузится (defer-скрипт)
+      await this.waitForBridge();
 
+      if (window.WebApp) {
+        try { if (window.WebApp.ready) window.WebApp.ready(); } catch (_) {}
+        try { if (window.WebApp.expand) window.WebApp.expand(); } catch (_) {}
+        try {
+          if (window.WebApp.enableClosingConfirmation) {
+            window.WebApp.enableClosingConfirmation();
+          }
+        } catch (_) {}
+        try {
+          if (typeof window.WebApp.disableVerticalSwipes === 'function') {
+            window.WebApp.disableVerticalSwipes();
+          }
+        } catch (_) {}
+
+        // Sticky App для iOS
+        try {
+          const platform = window.WebApp.platform;
+          if (platform && platform !== 'web' && platform !== 'macos') {
+            document.body.classList.add('mobile-body');
+            const wrap = document.getElementById('wrap');
+            const content = document.getElementById('content');
+            if (wrap) wrap.classList.add('mobile-wrap');
+            if (content) content.classList.add('mobile-content');
+          }
+        } catch (_) {}
+      }
+
+      // Теперь WebApp доступен — можно читать deep link
+      this.currentHandshake = 1;
       const challenge = ChallengeLink.parse();
       if (challenge.tiles) {
         this.pendingTiles = challenge.tiles;
@@ -1497,7 +1570,10 @@
       } else {
         this.startGame();
       }
-      this.bootstrap();
+
+      await this.stats.load();
+      this.stats.render(this.dom.stats);
+
       trackEvent('visit');
     }
 
@@ -1551,23 +1627,6 @@
       this._splashTimer = window.setTimeout(close, 42000);
     }
 
-    async bootstrap() {
-      try {
-        await this.waitForBridge();
-        if (window.WebApp) {
-          try { if (window.WebApp.ready) window.WebApp.ready(); } catch (_) {}
-          try { if (window.WebApp.expand) window.WebApp.expand(); } catch (_) {}
-          try {
-            if (typeof window.WebApp.disableVerticalSwipes === 'function') {
-              window.WebApp.disableVerticalSwipes();
-            }
-          } catch (_) {}
-        }
-        await this.stats.load();
-        this.stats.render(this.dom.stats);
-      } catch (_) {}
-    }
-
     waitForBridge() {
       if (window.WebApp) return Promise.resolve();
       return new Promise((resolve) => {
@@ -1614,7 +1673,7 @@
         if (e.touches.length !== 1) { this._swipe = null; return; }
         const t = e.touches[0];
         this._swipe = { x: t.clientX, y: t.clientY, t: Date.now() };
-      }, { passive: true });
+      }, { passive: false });
 
       el.addEventListener('touchmove', (e) => {
         if (!this._swipe) return;
@@ -1623,7 +1682,6 @@
         const t = e.touches[0];
         const dx = t.clientX - this._swipe.x;
         const dy = t.clientY - this._swipe.y;
-        // Блокируем вертикальные жесты (вверх и вниз), чтобы MAX не закрывал окно
         if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) {
           e.preventDefault();
         }
