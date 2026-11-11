@@ -51,22 +51,15 @@
     overscroll-behavior: none;
     touch-action: manipulation;
   }
-  .mobile-body {
-    overflow: hidden;
-    height: 100dvh;
-  }
+  .mobile-body { overflow: hidden; height: 100dvh; }
   .mobile-wrap {
-    position: absolute;
-    inset: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
+    position: absolute; inset: 0;
+    overflow-x: hidden; overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     touch-action: pan-x pan-y;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
     padding:
       max(20px, env(safe-area-inset-top))
       max(16px, env(safe-area-inset-right))
@@ -74,19 +67,14 @@
       max(16px, env(safe-area-inset-left));
   }
   .mobile-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    min-height: calc(100% + 1px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    width: 100%; min-height: calc(100% + 1px);
   }
   body::after {
     content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
     background-image:
       radial-gradient(2.5px 2.5px at 20% 10%, var(--snow) 50%, transparent 51%),
       radial-gradient(3px 3px at 60% 30%, var(--snow) 50%, transparent 51%),
@@ -97,39 +85,28 @@
     animation: snowfall 28s linear infinite;
   }
   .splash {
-    position: fixed;
-    inset: 0;
-    z-index: 200;
+    position: fixed; inset: 0; z-index: 200;
     background: radial-gradient(ellipse at center, #1a1410 0%, #0b0806 75%);
     overflow: hidden;
-    transition: opacity 500ms ease;
   }
-  .splash.hidden { opacity: 0; pointer-events: none; }
+  .splash.hidden { display: none; }
   .splash-scene {
-    position: absolute;
-    inset: 0;
-    perspective: 700px;
-    perspective-origin: 50% 30%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute; inset: 0;
+    perspective: 700px; perspective-origin: 50% 30%;
+    display: flex; align-items: center; justify-content: center;
     overflow: hidden;
   }
   .splash-text {
     transform-origin: 50% 100%;
-    animation: crawl 40s linear forwards;
     color: #f5e0a8;
     text-align: center;
     font-family: var(--serif);
-    font-size: 18px;
-    line-height: 1.8;
-    max-width: 82vw;
-    padding: 0 20px;
+    font-size: 18px; line-height: 1.8;
+    max-width: 82vw; padding: 0 20px;
     letter-spacing: 0.02em;
-    text-shadow:
-      0 0 12px rgba(240, 214, 138, 0.35),
-      0 2px 6px rgba(0, 0, 0, 0.9);
+    text-shadow: 0 0 12px rgba(240, 214, 138, 0.35), 0 2px 6px rgba(0, 0, 0, 0.9);
   }
+  .splash-text.play { animation: crawl 40s linear forwards; }
   .splash-text p { margin: 0 0 1.4em; }
   .splash-final { color: #e8c860; font-style: italic; }
   @keyframes crawl {
@@ -143,65 +120,67 @@
     background: transparent;
     border: 1px solid rgba(240, 214, 138, 0.4);
     color: #f0d68a;
-    cursor: pointer;
-    z-index: 2;
+    cursor: pointer; z-index: 2;
     -webkit-tap-highlight-color: transparent;
   }
   .splash-skip {
     bottom: max(24px, env(safe-area-inset-bottom));
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 10px 22px;
-    border-radius: 10px;
-    font-family: var(--sans);
-    font-size: 14px;
+    left: 50%; transform: translateX(-50%);
+    padding: 10px 22px; border-radius: 10px;
+    font-family: var(--sans); font-size: 14px;
     letter-spacing: 0.06em;
   }
   .splash-skip:active { background: rgba(240, 214, 138, 0.1); }
   .splash-sound {
     top: max(20px, env(safe-area-inset-top));
     right: max(20px, env(safe-area-inset-right));
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    font-size: 18px;
+    width: 42px; height: 42px;
+    border-radius: 50%; font-size: 18px;
   }
   .splash-sound.playing { background: rgba(240, 214, 138, 0.15); }
+  .splash-replay-btn {
+    position: fixed;
+    top: max(16px, env(safe-area-inset-top));
+    right: max(16px, env(safe-area-inset-right));
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 11px; line-height: 1;
+    cursor: pointer; z-index: 100;
+    opacity: 0.3;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 150ms ease;
+  }
+  .splash-replay-btn:hover { opacity: 0.65; }
+  .splash-replay-btn:active { opacity: 1; }
+  .splash-replay-btn.hidden { display: none; }
   .game {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
+    position: relative; z-index: 1;
+    width: 100%; max-width: 400px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 12px;
   }
   .brand {
     width: min(88vw, 360px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 2px;
     margin-bottom: 4px;
   }
   .brand-title {
     width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     gap: 14px;
     font-family: var(--serif);
-    font-size: 22px;
-    font-weight: 600;
+    font-size: 22px; font-weight: 600;
     letter-spacing: 0.18em;
-    color: var(--board);
-    margin: 0;
+    color: var(--board); margin: 0;
   }
   .brand-title::before, .brand-title::after {
     content: '';
-    flex: 0 1 80px;
-    height: 1px;
+    flex: 0 1 80px; height: 1px;
     background: linear-gradient(to right, transparent, var(--gold), transparent);
     opacity: 0.7;
   }
@@ -210,16 +189,14 @@
   }
   .brand-subtitle {
     font-family: var(--serif);
-    font-size: 12px;
-    font-style: italic;
+    font-size: 12px; font-style: italic;
     color: var(--muted);
     letter-spacing: 0.08em;
     margin: 0;
   }
   .brand-holiday {
     font-family: var(--serif);
-    font-size: 10px;
-    font-style: italic;
+    font-size: 10px; font-style: italic;
     letter-spacing: 0.22em;
     color: var(--accent);
     margin: 6px 0 0;
@@ -242,25 +219,18 @@
   }
   .board.ready { opacity: 1; }
   .tile {
-    position: absolute;
-    top: 0; left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute; top: 0; left: 0;
+    display: flex; align-items: center; justify-content: center;
     background: var(--tile);
     color: var(--ink);
     border: 1px solid rgba(58, 36, 24, 0.28);
     border-radius: 4px;
-    font-family: var(--mono);
-    font-weight: 700;
+    font-family: var(--mono); font-weight: 700;
     font-variant-numeric: tabular-nums;
-    box-shadow:
-      inset 0 -2px 0 var(--tile-edge),
-      0 1px 2px rgba(58, 36, 24, 0.14);
+    box-shadow: inset 0 -2px 0 var(--tile-edge), 0 1px 2px rgba(58, 36, 24, 0.14);
     transition: transform 100ms cubic-bezier(0.2, 0.8, 0.2, 1);
     cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
+    user-select: none; -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
     will-change: transform;
   }
@@ -271,20 +241,13 @@
   .board.no-anim .tile { transition: none; }
   .status-row {
     width: min(88vw, 360px);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; margin: 0;
   }
   .matryoshka-btn {
-    background: transparent;
-    border: none;
-    padding: 0;
+    background: transparent; border: none; padding: 0;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     border-radius: 6px;
     -webkit-tap-highlight-color: transparent;
     opacity: 0.9;
@@ -293,19 +256,16 @@
   .matryoshka-btn:hover { opacity: 1; }
   .matryoshka-btn:active { transform: scale(0.94); }
   .counter {
-    font-family: var(--mono);
-    font-size: 11px;
+    font-family: var(--mono); font-size: 11px;
     letter-spacing: 0.14em;
     color: var(--muted);
-    margin: 0;
-    text-align: right;
+    margin: 0; text-align: right;
     font-variant-numeric: tabular-nums;
     text-transform: uppercase;
     opacity: 0.9;
   }
   .controls {
-    display: flex;
-    gap: 10px;
+    display: flex; gap: 10px;
     width: min(88vw, 360px);
   }
   .btn {
@@ -316,26 +276,18 @@
     color: var(--ink);
     border-radius: 10px;
     font-family: var(--sans);
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 15px; font-weight: 500;
     cursor: pointer;
     transition: transform 80ms ease, filter 120ms ease, box-shadow 120ms ease;
-    box-shadow:
-      0 1px 2px rgba(58, 36, 24, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    box-shadow: 0 1px 2px rgba(58, 36, 24, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.35);
     -webkit-tap-highlight-color: transparent;
   }
-  .btn:active {
-    transform: translateY(1px);
-    filter: brightness(0.97);
-  }
+  .btn:active { transform: translateY(1px); filter: brightness(0.97); }
   .btn-accent {
     background: var(--accent);
     color: #fff;
     border-color: transparent;
-    box-shadow:
-      0 1px 3px rgba(58, 36, 24, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    box-shadow: 0 1px 3px rgba(58, 36, 24, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   }
   .btn-accent:active { filter: brightness(0.92); }
   .btn-quiet {
@@ -351,8 +303,7 @@
   }
   .reveal, .challenge-landing {
     width: min(88vw, 360px);
-    display: flex;
-    flex-direction: column;
+    display: flex; flex-direction: column;
     gap: 12px;
     animation: fade 220ms ease;
   }
@@ -362,14 +313,11 @@
     border-radius: 12px;
     border: 1px solid var(--line);
     text-align: center;
-    box-shadow:
-      0 2px 8px rgba(58, 36, 24, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    box-shadow: 0 2px 8px rgba(58, 36, 24, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.35);
   }
   .reveal-ornament {
     color: var(--accent);
-    font-size: 12px;
-    line-height: 1;
+    font-size: 12px; line-height: 1;
     margin-bottom: 10px;
     letter-spacing: 0.4em;
     opacity: 0.85;
@@ -377,15 +325,13 @@
   .reveal-text {
     margin: 0;
     font-family: var(--serif);
-    font-size: 22px;
-    font-weight: 600;
+    font-size: 22px; font-weight: 600;
     line-height: 1.25;
     color: var(--ink);
   }
   .reveal-meta {
     margin: 8px 0 0;
-    font-size: 14px;
-    line-height: 1.45;
+    font-size: 14px; line-height: 1.45;
     color: var(--muted);
     font-family: var(--serif);
     font-style: italic;
@@ -417,13 +363,11 @@
     opacity: 0.95;
   }
   .reveal-actions {
-    display: flex;
-    flex-direction: column;
+    display: flex; flex-direction: column;
     gap: 10px;
   }
   .stats {
-    font-size: 12px;
-    line-height: 1.5;
+    font-size: 12px; line-height: 1.5;
     text-align: center;
     color: var(--muted);
     max-width: min(88vw, 360px);
@@ -432,14 +376,28 @@
   .footer-note {
     font-family: var(--serif);
     font-style: italic;
-    font-size: 11px;
-    line-height: 1.4;
+    font-size: 11px; line-height: 1.4;
     color: var(--muted);
     text-align: center;
     max-width: min(88vw, 360px);
     margin: 0;
     opacity: 0.85;
   }
+  .footer-about-btn {
+    background: transparent; border: none;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 11px;
+    cursor: pointer;
+    padding: 4px 8px;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+    opacity: 0.6;
+    -webkit-tap-highlight-color: transparent;
+    margin-top: 2px;
+  }
+  .footer-about-btn:hover { opacity: 0.9; }
   .hidden { display: none !important; }
   @keyframes fade {
     from { opacity: 0; transform: translateY(4px); }
@@ -458,70 +416,49 @@
     background: var(--ink);
     color: var(--bg);
     border-radius: 10px;
-    font-family: var(--sans);
-    font-size: 14px;
+    font-family: var(--sans); font-size: 14px;
     pointer-events: none;
     opacity: 0;
     transition: opacity 180ms ease, transform 180ms ease;
     z-index: 100;
     max-width: min(80vw, 320px);
-    text-align: center;
-    line-height: 1.4;
+    text-align: center; line-height: 1.4;
   }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .win-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 150;
+    position: fixed; inset: 0; z-index: 150;
     background: var(--overlay);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     padding: 20px;
     animation: fade 320ms ease;
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
   }
   .confetti-canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
     pointer-events: none;
   }
   .win-content {
-    position: relative;
-    z-index: 1;
+    position: relative; z-index: 1;
     width: min(88vw, 360px);
     background: var(--tile);
     border-radius: 16px;
     border: 2px solid var(--gold);
     padding: 28px 22px 22px;
     text-align: center;
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    display: flex; flex-direction: column;
+    align-items: center; gap: 10px;
   }
   .win-ornament {
     color: var(--accent);
-    font-size: 14px;
-    letter-spacing: 0.4em;
-    margin: 0;
-    opacity: 0.9;
+    font-size: 14px; letter-spacing: 0.4em;
+    margin: 0; opacity: 0.9;
   }
   .win-title {
     font-family: var(--serif);
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--ink);
-    margin: 0;
+    font-size: 32px; font-weight: 700;
+    color: var(--ink); margin: 0;
     letter-spacing: 0.06em;
   }
   .win-meta {
@@ -533,49 +470,60 @@
   }
   .win-matryoshka { margin: 8px 0; display: block; }
   .win-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    margin-top: 6px;
+    display: flex; flex-direction: column;
+    gap: 10px; width: 100%; margin-top: 6px;
   }
-  .thanks-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 160;
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 160;
     background: var(--overlay);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     padding: 20px;
     animation: fade 220ms ease;
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    overflow-y: auto;
   }
-  .thanks-card {
-    width: min(88vw, 340px);
+  .modal-card {
+    width: min(88vw, 380px);
     background: var(--tile);
     border-radius: 14px;
     border: 1px solid var(--line);
     padding: 24px 22px 20px;
-    text-align: center;
+    text-align: left;
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
-    display: flex;
-    flex-direction: column;
+    display: flex; flex-direction: column;
     gap: 14px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
   }
-  .thanks-ornament {
-    color: var(--accent);
-    font-size: 12px;
-    letter-spacing: 0.4em;
-    opacity: 0.85;
-  }
-  .thanks-text {
+  .modal-title {
     font-family: var(--serif);
-    font-size: 16px;
-    line-height: 1.5;
+    font-size: 18px; font-weight: 600;
     color: var(--ink);
     margin: 0;
+    text-align: center;
+    letter-spacing: 0.04em;
+  }
+  .modal-ornament {
+    color: var(--accent);
+    font-size: 12px; letter-spacing: 0.4em;
+    opacity: 0.85;
+    text-align: center;
+  }
+  .about-text {
+    font-family: var(--sans);
+    font-size: 14px; line-height: 1.55;
+    color: var(--ink);
+    margin: 0;
+    white-space: pre-line;
+  }
+  .about-text a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .modal-close {
+    width: 100%;
+    margin-top: 4px;
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -604,9 +552,7 @@
     }
     .tile {
       border-color: rgba(0, 0, 0, 0.35);
-      box-shadow:
-        inset 0 -2px 0 var(--tile-edge),
-        0 1px 2px rgba(0, 0, 0, 0.35);
+      box-shadow: inset 0 -2px 0 var(--tile-edge), 0 1px 2px rgba(0, 0, 0, 0.35);
     }
     .board {
       box-shadow:
@@ -616,31 +562,21 @@
         0 3px 16px rgba(0, 0, 0, 0.5);
     }
     .reveal-card {
-      box-shadow:
-        0 2px 10px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
     .btn {
-      box-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
     .win-content {
-      box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.6),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
-    .reveal-ornament,
-    .challenge-krug,
-    .win-ornament,
-    .thanks-ornament {
-      color: #e8c860;
-      opacity: 1;
+    .modal-card {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
-    .reveal-meta,
-    .challenge-sub,
-    .reveal-krug,
-    .win-meta {
+    .reveal-ornament, .challenge-krug, .win-ornament, .modal-ornament {
+      color: #e8c860; opacity: 1;
+    }
+    .reveal-meta, .challenge-sub, .reveal-krug, .win-meta {
       color: #ecd0a8;
     }
   }
@@ -649,6 +585,8 @@
 </head>
 <body>
 
+<button class="splash-replay-btn hidden" id="splashReplayBtn" type="button" aria-label="Заставка">▶</button>
+
 <div id="wrap">
   <div id="content">
 
@@ -656,10 +594,10 @@
       <button class="splash-sound" id="splashSound" type="button" aria-label="Звук">♪</button>
       <div class="splash-scene">
         <div class="splash-text" id="splashText">
-          <p>В некотором царстве,<br>в тридесятом государстве,<br>там, где кнопочные телефоны<br>ещё помнят тепло ладони,<br>а первые флешки<br>хранят чужие секреты, —<br>живёт игра.</p>
+          <p>В некотором царстве,<br>в тридесятом государстве,<br>там, где кнопочные телефоны<br>еще помнят тепло ладони,<br>а первые флешки<br>хранят чужие секреты, —<br>живет игра.</p>
           <p>В ней есть расклады,<br>которые не собрать ни за что.<br>Какой достанется тебе —<br>неведомо.</p>
           <p>Расставь числа от 1 до 15<br>по порядку:<br>от первой клетки — до последней.</p>
-          <p>Соберёшь — тебе аплодисменты.<br>Сдашься — значит, не судьба.</p>
+          <p>Соберешь — тебе аплодисменты.<br>Сдашься — значит, не судьба.</p>
           <p class="splash-final">Удачи, добрый молодец.<br>Или красна девица.</p>
         </div>
       </div>
@@ -707,12 +645,13 @@
         <div class="reveal-actions">
           <p class="reveal-krug">Жму руку за попытку. Передай рукопожатие дальше!</p>
           <button class="btn btn-accent" id="transferBtn" type="button">Передать забаву</button>
-          <button class="btn" id="againBtn" type="button">Ещё раз</button>
+          <button class="btn" id="againBtn" type="button">Еще раз</button>
         </div>
       </div>
 
       <div class="stats" id="stats"></div>
       <p class="footer-note">Пока искала работу — сделала забаву. Теперь твой ход.</p>
+      <button class="footer-about-btn" id="aboutBtn" type="button">Об авторе</button>
     </main>
 
     <div class="win-overlay hidden" id="winOverlay">
@@ -725,16 +664,35 @@
         <div class="win-actions">
           <p class="reveal-krug">Жму руку за попытку. Передай рукопожатие дальше!</p>
           <button class="btn btn-accent" id="winTransferBtn" type="button">Передать забаву</button>
-          <button class="btn" id="winAgainBtn" type="button">Ещё раз</button>
+          <button class="btn" id="winAgainBtn" type="button">Еще раз</button>
         </div>
       </div>
     </div>
 
-    <div class="thanks-overlay hidden" id="thanksOverlay">
-      <div class="thanks-card">
-        <div class="thanks-ornament">❄ ✦ ❄</div>
-        <p class="thanks-text">Спасибо всем, кто участвовал в разработке игры — я ценю ваш вклад.</p>
-        <button class="btn" id="thanksClose" type="button">Закрыть</button>
+    <div class="modal-overlay hidden" id="thanksOverlay">
+      <div class="modal-card">
+        <div class="modal-ornament">❄ ✦ ❄</div>
+        <p class="about-text">Спасибо всем, кто участвовал в разработке игры — я ценю ваш вклад.</p>
+        <button class="btn modal-close" id="thanksClose" type="button">Закрыть</button>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="aboutOverlay">
+      <div class="modal-card">
+        <div class="modal-ornament">❄ ✦ ❄</div>
+        <h3 class="modal-title">Об авторе</h3>
+        <p class="about-text">Я менеджер рекламных проектов. По образованию — программист.
+
+Ищу работу. Рынок изменился — боты, ИИ, фильтры. Я не спорю. Я адаптируюсь.
+
+В колледже я писала пятнашки сама. Сейчас ИИ выдает код за пять минут. Сначала — беспомощность. Потом — понимание: в новом мире решает не код, а умение адаптироваться. За две недели — игра, десятки гипотез, кейс. Доказательство моей ценности. Новой.
+
+В пятнашках не все расклады собираются, и это не всегда зависит от игрока. С работой так же — но каждый новый расклад это новый шанс.
+
+Релиз — 11.11. Подробнее — в <a href="https://github.com/EsmaNoel/solve" target="_blank" rel="noopener">README на GitHub</a>.
+
+Пишите, может, у нас сложится: <a href="https://max.ru/u/f9LHodD0cOJjKMGEaMjSRAAXAtNdKRiZBMjCxE45vGH7eOTURM630KN8XLU" target="_blank" rel="noopener">MAX</a> · <a href="https://t.me/snitkovskaia" target="_blank" rel="noopener">Telegram</a></p>
+        <button class="btn modal-close" id="aboutClose" type="button">Закрыть</button>
       </div>
     </div>
 
@@ -747,7 +705,6 @@
 (function () {
   'use strict';
 
-  // === Константы ===
   const SIZE = 4;
   const TILE_COUNT = SIZE * SIZE;
   const PAD = 8;
@@ -760,9 +717,7 @@
   const SWIPE_MAX_TIME = 700;
   const BOT_URL = 'https://max.ru/se14885717_bot';
 
-  // === Cloudflare Worker: вставь URL сюда ===
   const ANALYTICS_URL = '';
-
   const trackEvent = (name, value) => {
     if (!ANALYTICS_URL) return;
     try {
@@ -780,10 +735,7 @@
     return many;
   };
 
-  const ordinalText = (n) => {
-    if (n === 1) return 'первое';
-    return n + '-е';
-  };
+  const ordinalText = (n) => n === 1 ? 'первое' : n + '-е';
 
   const shuffleArray = (arr) => {
     for (let i = arr.length - 1; i > 0; i--) {
@@ -793,7 +745,6 @@
     return arr;
   };
 
-  // === Аудио ===
   const AudioEngine = {
     ctx: null,
     ensure() {
@@ -865,12 +816,8 @@
     }
   };
 
-  // === Музыка заставки ===
   const SplashAudio = {
-    ctx: null,
-    active: false,
-    timers: [],
-    _oscNodes: [],
+    ctx: null, active: false, timers: [], _oscNodes: [],
     init() {
       if (!this.ctx) {
         const AC = window.AudioContext || window.webkitAudioContext;
@@ -884,15 +831,12 @@
       if (!ctx) { if (onChange) onChange(false); return; }
       if (this.active) { if (onChange) onChange(true); return; }
       if (ctx.state === 'running') {
-        this.active = true;
-        this._playPhrase();
-        if (onChange) onChange(true);
-        return;
+        this.active = true; this._playPhrase();
+        if (onChange) onChange(true); return;
       }
       ctx.resume().then(() => {
         if (!this.active && this.ctx === ctx) {
-          this.active = true;
-          this._playPhrase();
+          this.active = true; this._playPhrase();
           if (onChange) onChange(true);
         }
       }).catch(() => { if (onChange) onChange(false); });
@@ -901,23 +845,19 @@
       this.active = false;
       this.timers.forEach(t => clearTimeout(t));
       this.timers = [];
-      this._oscNodes.forEach(node => {
-        try { node.stop(); } catch (_) {}
-      });
+      this._oscNodes.forEach(node => { try { node.stop(); } catch (_) {} });
       this._oscNodes = [];
     },
     _playPhrase() {
       if (!this.active || !this.ctx) return;
       const ctx = this.ctx;
       const start = ctx.currentTime + 0.05;
-
       const melody = [523.25, 587.33, 659.25, 783.99, 880.00, 783.99, 659.25, 523.25];
       melody.forEach((freq, i) => {
         const t = start + i * 0.22;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
+        osc.type = 'sine'; osc.frequency.value = freq;
         gain.gain.setValueAtTime(0.0001, t);
         gain.gain.exponentialRampToValueAtTime(0.1, t + 0.03);
         gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
@@ -925,13 +865,11 @@
         osc.start(t); osc.stop(t + 0.32);
         this._oscNodes.push(osc);
       });
-
       [130.81, 196.00].forEach((freq, i) => {
         const t = start + i * 0.9;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = freq;
+        osc.type = 'triangle'; osc.frequency.value = freq;
         gain.gain.setValueAtTime(0.0001, t);
         gain.gain.exponentialRampToValueAtTime(0.06, t + 0.12);
         gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
@@ -939,17 +877,13 @@
         osc.start(t); osc.stop(t + 0.95);
         this._oscNodes.push(osc);
       });
-
       const timer = setTimeout(() => this._playPhrase(), 4000);
       this.timers.push(timer);
     }
   };
 
-  // === Хранилище ===
   class StorageAdapter {
-    get isMax() {
-      return !!(window.WebApp && window.WebApp.DeviceStorage);
-    }
+    get isMax() { return !!(window.WebApp && window.WebApp.DeviceStorage); }
     async getItem(key) {
       if (this.isMax) {
         try {
@@ -968,7 +902,6 @@
     }
   }
 
-  // === Модель ===
   class Puzzle {
     constructor(tiles, solvable) {
       this.tiles = tiles;
@@ -1016,10 +949,7 @@
     static isAdjacent(a, b) {
       const ra = (a / SIZE) | 0, ca = a % SIZE;
       const rb = (b / SIZE) | 0, cb = b % SIZE;
-      return (
-        (ra === rb && Math.abs(ca - cb) === 1) ||
-        (ca === cb && Math.abs(ra - rb) === 1)
-      );
+      return (ra === rb && Math.abs(ca - cb) === 1) || (ca === cb && Math.abs(ra - rb) === 1);
     }
     static generate(solvable) {
       let t = shuffleArray(Puzzle.solvedArray());
@@ -1070,9 +1000,7 @@
   class Stats {
     constructor(storage) {
       this.storage = storage;
-      this.solved = 0;
-      this.wasted = 0;
-      this.unsolvable = 0;
+      this.solved = 0; this.wasted = 0; this.unsolvable = 0;
       this.knowsUnsolvable = false;
       this._writeChain = Promise.resolve();
       this._loadedPromise = new Promise(resolve => { this._resolveLoaded = resolve; });
@@ -1095,14 +1023,10 @@
     _waitUntilLoaded() { return this._loadedPromise; }
     save() {
       const snapshot = JSON.stringify({
-        solved: this.solved,
-        wasted: this.wasted,
-        unsolvable: this.unsolvable,
-        knowsUnsolvable: this.knowsUnsolvable,
+        solved: this.solved, wasted: this.wasted,
+        unsolvable: this.unsolvable, knowsUnsolvable: this.knowsUnsolvable,
       });
-      this._writeChain = this._writeChain
-        .catch(() => {})
-        .then(() => this.storage.setItem(STATS_KEY, snapshot));
+      this._writeChain = this._writeChain.catch(() => {}).then(() => this.storage.setItem(STATS_KEY, snapshot));
       return this._writeChain;
     }
     async recordSolved() { await this._waitUntilLoaded(); this.solved++; this.save(); }
@@ -1121,7 +1045,6 @@
     }
   }
 
-  // === Матрёшка ===
   const Matryoshka = {
     palette(tiles) {
       let hash = 0;
@@ -1144,8 +1067,7 @@
     draw(ctx, size, tiles, handshake, detailed) {
       const c = this.palette(tiles);
       const cx = size / 2;
-      const w = size * 0.62;
-      const h = size * 0.88;
+      const w = size * 0.62, h = size * 0.88;
       const top = size * 0.08;
       const hh = Math.min(handshake || 1, 8);
 
@@ -1156,8 +1078,7 @@
       ctx.quadraticCurveTo(cx + w * 0.5, top + h, cx, top + h);
       ctx.quadraticCurveTo(cx - w * 0.5, top + h, cx - w * 0.5, top + h * 0.78);
       ctx.bezierCurveTo(cx - w * 0.55, top + h * 0.55, cx - w * 0.5, top + h * 0.18, cx, top);
-      ctx.closePath();
-      ctx.fill();
+      ctx.closePath(); ctx.fill();
 
       ctx.fillStyle = c.bodyDark;
       ctx.beginPath();
@@ -1165,8 +1086,7 @@
       ctx.quadraticCurveTo(cx, top + h * 1.02, cx + w * 0.5, top + h * 0.82);
       ctx.lineTo(cx + w * 0.5, top + h * 0.95);
       ctx.quadraticCurveTo(cx, top + h * 1.08, cx - w * 0.5, top + h * 0.95);
-      ctx.closePath();
-      ctx.fill();
+      ctx.closePath(); ctx.fill();
 
       ctx.fillStyle = c.face;
       ctx.beginPath();
@@ -1181,24 +1101,15 @@
       ctx.moveTo(cx + w * 0.28, top + h * 0.18);
       ctx.lineTo(cx + w * 0.42, top + h * 0.32);
       ctx.lineTo(cx + w * 0.22, top + h * 0.3);
-      ctx.closePath();
-      ctx.fill();
+      ctx.closePath(); ctx.fill();
 
       if (detailed) {
         ctx.fillStyle = c.eye;
-        ctx.beginPath();
-        ctx.arc(cx - w * 0.11, top + h * 0.33, size * 0.018, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(cx + w * 0.11, top + h * 0.33, size * 0.018, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(cx - w * 0.11, top + h * 0.33, size * 0.018, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + w * 0.11, top + h * 0.33, size * 0.018, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = 'rgba(201,74,61,0.35)';
-        ctx.beginPath();
-        ctx.arc(cx - w * 0.18, top + h * 0.4, size * 0.025, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(cx + w * 0.18, top + h * 0.4, size * 0.025, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(cx - w * 0.18, top + h * 0.4, size * 0.025, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + w * 0.18, top + h * 0.4, size * 0.025, 0, Math.PI * 2); ctx.fill();
       }
 
       ctx.fillStyle = c.accent;
@@ -1209,14 +1120,11 @@
         const dotX = cx + (col - 1) * w * 0.16;
         const dotY = top + h * 0.6 + row * h * 0.06;
         const r = detailed ? size * 0.014 : size * 0.035;
-        ctx.beginPath();
-        ctx.arc(dotX, dotY, r, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(dotX, dotY, r, 0, Math.PI * 2); ctx.fill();
       }
     }
   };
 
-  // === Доска ===
   class BoardView {
     constructor(boardEl, onTileClick) {
       this.el = boardEl;
@@ -1281,7 +1189,6 @@
     resize(tiles) { this.renderAll(tiles); }
   }
 
-  // === Карточка шаринга ===
   const ShareCard = {
     readTheme() {
       const style = getComputedStyle(document.documentElement);
@@ -1361,22 +1268,10 @@
     }
   };
 
-  // === Ссылка-вызов (deep link на бота MAX + fallback на hash) ===
   class ChallengeLink {
-    static parse() {
+    static parse(raw) {
       try {
-        let raw = null;
-
-        if (window.WebApp && window.WebApp.initDataUnsafe) {
-          const sp = window.WebApp.initDataUnsafe.start_param ||
-                     window.WebApp.initDataUnsafe.startParam;
-          if (sp) raw = sp;
-        }
-
-        if (!raw) {
-          raw = window.location.hash.replace(/^#/, '');
-        }
-
+        if (!raw) raw = window.location.hash.replace(/^#/, '');
         if (!raw) return { tiles: null, handshake: 1 };
 
         const parts = raw.split('-');
@@ -1388,9 +1283,7 @@
         const tiles = [];
         for (let i = 0; i < TILE_COUNT; i++) {
           const v = parseInt(hex[i], 16);
-          if (!Number.isInteger(v) || v < 0 || v > 15) {
-            return { tiles: null, handshake: 1 };
-          }
+          if (!Number.isInteger(v) || v < 0 || v > 15) return { tiles: null, handshake: 1 };
           tiles.push(v);
         }
 
@@ -1403,33 +1296,25 @@
           const n = parseInt(parts[4], 10);
           if (Number.isInteger(n) && n > 0 && n < 100000) handshake = n;
         }
-
         return { tiles, handshake };
       } catch (_) {
         return { tiles: null, handshake: 1 };
       }
     }
-
     static build(tiles, handshake) {
       const hex = tiles.map(v => v.toString(16)).join('');
       const grouped = hex.match(/.{4}/g).join('-');
-      const payload = grouped + '-' + handshake;
-      return BOT_URL + '?startapp=' + payload;
+      return BOT_URL + '?startapp=' + grouped + '-' + handshake;
     }
-
     static clear() {
       try { history.replaceState({}, '', window.location.pathname); } catch (_) {}
     }
   }
 
-  // === Конфетти ===
   class Confetti {
     constructor(canvas) {
-      this.canvas = canvas;
-      this.ctx = null;
-      this.raf = null;
-      this.stopped = true;
-      this.particles = [];
+      this.canvas = canvas; this.ctx = null; this.raf = null;
+      this.stopped = true; this.particles = [];
       this.dims = { w: 0, h: 0 };
       this.tick = this.tick.bind(this);
     }
@@ -1438,12 +1323,9 @@
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       this.ctx = this.canvas.getContext('2d');
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      this.canvas.width = w * dpr;
-      this.canvas.height = h * dpr;
-      this.canvas.style.width = w + 'px';
-      this.canvas.style.height = h + 'px';
+      const w = window.innerWidth, h = window.innerHeight;
+      this.canvas.width = w * dpr; this.canvas.height = h * dpr;
+      this.canvas.style.width = w + 'px'; this.canvas.style.height = h + 'px';
       this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       this.dims = { w, h };
       this.particles = this._makeParticles(w, h);
@@ -1494,7 +1376,6 @@
     }
   }
 
-  // === Контроллер ===
   class Game {
     constructor(dom) {
       this.dom = dom;
@@ -1515,37 +1396,52 @@
       this._toastTimer = null;
       this._swipe = null;
       this._splashTimer = null;
+      this._hasMoved = false;
+      this._bridgeReady = false;
+      this._pendingDeepLink = null;
 
       this.bindEvents();
       this.bindSwipe();
       this.init();
     }
 
-    // === Главное изменение: init теперь async и ждёт MAX Bridge ===
-    async init() {
+    init() {
       let seen = false;
       try { seen = localStorage.getItem(SPLASH_KEY) === '1'; } catch (_) {}
       if (!seen) this.showSplash();
       try { localStorage.setItem(SPLASH_KEY, '1'); } catch (_) {}
 
-      // Ждём, пока MAX Bridge загрузится (defer-скрипт)
+      // Синхронно: проверяем hash (для GitHub Pages)
+      const fromHash = ChallengeLink.parse();
+      if (fromHash.tiles) {
+        this.pendingTiles = fromHash.tiles;
+        this.pendingHandshake = fromHash.handshake;
+        this.state = 'challenge';
+        this.dom.challengeKrug.textContent = 'Прими ' + ordinalText(fromHash.handshake) + ' рукопожатие.';
+        this.updateUI();
+      } else {
+        this.startGame();
+      }
+
+      // Асинхронно: ждём MAX Bridge, потом проверяем start_param
+      this.bootstrapAsync();
+    }
+
+    async bootstrapAsync() {
       await this.waitForBridge();
+      this._bridgeReady = true;
 
       if (window.WebApp) {
         try { if (window.WebApp.ready) window.WebApp.ready(); } catch (_) {}
         try { if (window.WebApp.expand) window.WebApp.expand(); } catch (_) {}
         try {
-          if (window.WebApp.enableClosingConfirmation) {
-            window.WebApp.enableClosingConfirmation();
-          }
+          if (window.WebApp.enableClosingConfirmation) window.WebApp.enableClosingConfirmation();
         } catch (_) {}
         try {
           if (typeof window.WebApp.disableVerticalSwipes === 'function') {
             window.WebApp.disableVerticalSwipes();
           }
         } catch (_) {}
-
-        // Sticky App для iOS
         try {
           const platform = window.WebApp.platform;
           if (platform && platform !== 'web' && platform !== 'macos') {
@@ -1556,44 +1452,58 @@
             if (content) content.classList.add('mobile-content');
           }
         } catch (_) {}
-      }
 
-      // Теперь WebApp доступен — можно читать deep link
-      this.currentHandshake = 1;
-      const challenge = ChallengeLink.parse();
-      if (challenge.tiles) {
-        this.pendingTiles = challenge.tiles;
-        this.pendingHandshake = challenge.handshake;
-        this.state = 'challenge';
-        this.dom.challengeKrug.textContent = 'Прими ' + ordinalText(challenge.handshake) + ' рукопожатие.';
-        this.updateUI();
-      } else {
-        this.startGame();
+        // Читаем start_param из deep link
+        try {
+          const sp = window.WebApp.initDataUnsafe &&
+            (window.WebApp.initDataUnsafe.start_param || window.WebApp.initDataUnsafe.startParam);
+          if (sp) {
+            const parsed = ChallengeLink.parse(sp);
+            if (parsed.tiles) {
+              // Показываем карточку только если игрок еще не начал играть
+              if (!this._hasMoved) {
+                this.pendingTiles = parsed.tiles;
+                this.pendingHandshake = parsed.handshake;
+                this.state = 'challenge';
+                this.dom.challengeKrug.textContent = 'Прими ' + ordinalText(parsed.handshake) + ' рукопожатие.';
+                this.updateUI();
+              }
+            }
+          }
+        } catch (_) {}
       }
 
       await this.stats.load();
       this.stats.render(this.dom.stats);
-
       trackEvent('visit');
     }
 
     showSplash() {
       const splash = this.dom.splash;
       if (!splash) return;
-      splash.classList.remove('hidden');
+      this._openSplash();
+    }
 
+    _openSplash() {
+      const splash = this.dom.splash;
+      const text = this.dom.splashText;
       const soundBtn = this.dom.splashSound;
+      splash.classList.remove('hidden');
+      this.dom.splashReplayBtn.classList.add('hidden');
+
+      // Сброс анимации
+      text.classList.remove('play');
+      void text.offsetWidth;
+      text.classList.add('play');
+
       const updateBtn = () => {
         soundBtn.classList.toggle('playing', SplashAudio.active);
       };
-
       SplashAudio.start(updateBtn);
 
       const onGesture = (e) => {
         if (soundBtn.contains(e.target)) return;
-        if (!SplashAudio.active) {
-          SplashAudio.start(updateBtn);
-        }
+        if (!SplashAudio.active) SplashAudio.start(updateBtn);
         if (SplashAudio.active) {
           document.removeEventListener('pointerdown', onGesture, true);
           document.removeEventListener('touchstart', onGesture, true);
@@ -1604,12 +1514,15 @@
       document.addEventListener('touchstart', onGesture, true);
       document.addEventListener('keydown', onGesture, true);
 
-      soundBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (SplashAudio.active) SplashAudio.stop();
-        else SplashAudio.start(updateBtn);
-        updateBtn();
-      });
+      if (!soundBtn._bound) {
+        soundBtn._bound = true;
+        soundBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (SplashAudio.active) SplashAudio.stop();
+          else SplashAudio.start(updateBtn);
+          updateBtn();
+        });
+      }
 
       const close = () => {
         SplashAudio.stop();
@@ -1618,12 +1531,14 @@
         document.removeEventListener('keydown', onGesture, true);
         splash.classList.add('hidden');
         if (this._splashTimer) { clearTimeout(this._splashTimer); this._splashTimer = null; }
-        window.setTimeout(() => {
-          if (splash.parentNode) splash.parentNode.removeChild(splash);
-        }, 600);
+        this.dom.splashReplayBtn.classList.remove('hidden');
       };
 
-      this.dom.splashSkip.addEventListener('click', close);
+      if (!this.dom.splashSkip._bound) {
+        this.dom.splashSkip._bound = true;
+        this.dom.splashSkip.addEventListener('click', close);
+      }
+      if (this._splashTimer) clearTimeout(this._splashTimer);
       this._splashTimer = window.setTimeout(close, 42000);
     }
 
@@ -1653,8 +1568,7 @@
       const dpr = this.dpr;
       const target = cssSize * dpr;
       if (canvas.width !== target) {
-        canvas.width = target;
-        canvas.height = target;
+        canvas.width = target; canvas.height = target;
         canvas.style.width = cssSize + 'px';
         canvas.style.height = cssSize + 'px';
       }
@@ -1682,9 +1596,7 @@
         const t = e.touches[0];
         const dx = t.clientX - this._swipe.x;
         const dy = t.clientY - this._swipe.y;
-        if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) {
-          e.preventDefault();
-        }
+        if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) e.preventDefault();
       }, { passive: false });
 
       el.addEventListener('touchend', (e) => {
@@ -1741,6 +1653,16 @@
       this.dom.thanksOverlay.addEventListener('click', (e) => {
         if (e.target === this.dom.thanksOverlay) this.dom.thanksOverlay.classList.add('hidden');
       });
+      this.dom.splashReplayBtn.addEventListener('click', () => this._openSplash());
+      this.dom.aboutBtn.addEventListener('click', () => {
+        this.dom.aboutOverlay.classList.remove('hidden');
+      });
+      this.dom.aboutClose.addEventListener('click', () => {
+        this.dom.aboutOverlay.classList.add('hidden');
+      });
+      this.dom.aboutOverlay.addEventListener('click', (e) => {
+        if (e.target === this.dom.aboutOverlay) this.dom.aboutOverlay.classList.add('hidden');
+      });
 
       window.addEventListener('resize', () => {
         if (this.puzzle) this.view.resize(this.puzzle.tiles);
@@ -1755,6 +1677,7 @@
       this.originalTiles = this.puzzle.tiles.slice();
       this.state = 'playing';
       this.locked = false;
+      this._hasMoved = false;
       this.setMovesDisplay(0);
       this.updateUI();
       this.view.renderAll(this.puzzle.tiles);
@@ -1770,6 +1693,7 @@
       this.pendingTiles = null;
       this.state = 'playing';
       this.locked = false;
+      this._hasMoved = false;
       this.setMovesDisplay(0);
       this.updateUI();
       this.view.renderAll(this.puzzle.tiles);
@@ -1781,6 +1705,7 @@
       if (this.state !== 'playing' || this.locked) return;
       const newIdx = this.puzzle.move(value);
       if (newIdx === null) return;
+      this._hasMoved = true;
       this.view.moveTile(value, newIdx);
       AudioEngine.move();
       this.setMovesDisplay(this.puzzle.moves);
@@ -1827,7 +1752,7 @@
       const solvable = this.puzzle.solvable;
       if (solvable) {
         this.dom.revealText.textContent = 'Не решено.';
-        this.dom.revealMeta.textContent = 'Можно было решить. Уйти — твоё право.';
+        this.dom.revealMeta.textContent = 'Можно было решить. Уйти — твое право.';
         trackEvent('loss_solvable');
       } else {
         this.dom.revealText.textContent = 'Не судьба.';
@@ -1843,6 +1768,7 @@
       if (this.state !== 'won' && this.state !== 'lost') return;
       const nextHandshake = this.currentHandshake + 1;
       const url = ChallengeLink.build(this.originalTiles, nextHandshake);
+      const textWithUrl = 'Тебе передали забаву. А слабо? ' + url;
 
       let file = null;
       try {
@@ -1860,7 +1786,7 @@
       if (navigator.share) {
         const shareData = {
           title: 'Решай',
-          text: 'Тебе передали забаву. А слабо?',
+          text: textWithUrl,
           url: url
         };
         if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -1940,7 +1866,6 @@
     }
   }
 
-  // === Старт ===
   new Game({
     board: document.getElementById('board'),
     statusRow: document.querySelector('.status-row'),
@@ -1962,15 +1887,20 @@
     stats: document.getElementById('stats'),
     toast: document.getElementById('toast'),
     splash: document.getElementById('splash'),
+    splashText: document.getElementById('splashText'),
     splashSkip: document.getElementById('splashSkip'),
     splashSound: document.getElementById('splashSound'),
+    splashReplayBtn: document.getElementById('splashReplayBtn'),
     winOverlay: document.getElementById('winOverlay'),
     winMeta: document.getElementById('winMeta'),
     winTransferBtn: document.getElementById('winTransferBtn'),
     winAgainBtn: document.getElementById('winAgainBtn'),
     confettiCanvas: document.getElementById('confettiCanvas'),
     thanksOverlay: document.getElementById('thanksOverlay'),
-    thanksClose: document.getElementById('thanksClose')
+    thanksClose: document.getElementById('thanksClose'),
+    aboutBtn: document.getElementById('aboutBtn'),
+    aboutOverlay: document.getElementById('aboutOverlay'),
+    aboutClose: document.getElementById('aboutClose')
   });
 })();
 </script>
