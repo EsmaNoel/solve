@@ -6,6 +6,12 @@
 <meta name="theme-color" content="#f7ebd4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1a1410" media="(prefers-color-scheme: dark)">
 <title>Решай · Пятнашки по-русски</title>
+
+<!-- OG-теги для аккуратного превью -->
+<meta property="og:title" content="Решай · Пятнашки по-русски">
+<meta property="og:description" content="Собери поле 4×4 и передай забаву другу. Часть раскладов нерешаема.">
+<meta property="og:type" content="website">
+
 <link rel="preconnect" href="https://st.max.ru">
 <style>
   :root {
@@ -19,6 +25,7 @@
     --muted: #8e6f50;
     --accent: #c94a3d;
     --gold: #e0b850;
+    --link-color: #2a5c8a; /* Синий в светлой теме */
     --line: rgba(58, 36, 24, 0.14);
     --snow: rgba(90, 120, 160, 0.72);
     --candy: rgba(201, 74, 61, 0.78);
@@ -145,16 +152,16 @@
     width: 32px; height: 32px;
     border-radius: 50%;
     background: transparent;
-    border: 1px solid var(--line);
-    color: var(--muted);
+    border: 1px solid rgba(58, 36, 24, 0.25);
+    color: var(--ink);
     font-size: 11px; line-height: 1;
     cursor: pointer; z-index: 100;
-    opacity: 0.3;
+    opacity: 0.4;
     display: flex; align-items: center; justify-content: center;
     -webkit-tap-highlight-color: transparent;
     transition: opacity 150ms ease;
   }
-  .splash-replay-btn:hover { opacity: 0.65; }
+  .splash-replay-btn:hover { opacity: 0.8; }
   .splash-replay-btn:active { opacity: 1; }
   .splash-replay-btn.hidden { display: none; }
   .game {
@@ -514,12 +521,18 @@
     font-size: 14px; line-height: 1.55;
     color: var(--ink);
     margin: 0;
-    white-space: pre-line;
+  }
+  .about-text p {
+    margin: 0 0 12px 0;
   }
   .about-text a {
-    color: var(--accent);
+    color: var(--link-color);
     text-decoration: underline;
     text-underline-offset: 2px;
+  }
+  .about-last-line {
+    font-size: 13px;
+    margin-top: 4px;
   }
   .modal-close {
     width: 100%;
@@ -544,6 +557,7 @@
       --muted: #c8b294;
       --accent: #e05a4a;
       --gold: #e0b850;
+      --link-color: #e8c860; /* Золотой в темной теме */
       --line: rgba(242, 226, 194, 0.14);
       --snow: rgba(255, 255, 255, 0.95);
       --candy: rgba(230, 90, 74, 0.9);
@@ -578,6 +592,9 @@
     }
     .reveal-meta, .challenge-sub, .reveal-krug, .win-meta {
       color: #ecd0a8;
+    }
+    .splash-replay-btn {
+      border-color: rgba(242, 226, 194, 0.25);
     }
   }
 </style>
@@ -681,17 +698,14 @@
       <div class="modal-card">
         <div class="modal-ornament">❄ ✦ ❄</div>
         <h3 class="modal-title">Об авторе</h3>
-        <p class="about-text">Я менеджер рекламных проектов. По образованию — программист.
-
-Ищу работу. Рынок изменился — боты, ИИ, фильтры. Я не спорю. Я адаптируюсь.
-
-В колледже я писала пятнашки сама. Сейчас ИИ выдает код за пять минут. Сначала — беспомощность. Потом — понимание: в новом мире решает не код, а умение адаптироваться. За две недели — игра, десятки гипотез, кейс. Доказательство моей ценности. Новой.
-
-В пятнашках не все расклады собираются, и это не всегда зависит от игрока. С работой так же — но каждый новый расклад это новый шанс.
-
-Релиз — 11.11. Подробнее — в <a href="https://github.com/EsmaNoel/solve" target="_blank" rel="noopener">README на GitHub</a>.
-
-Пишите, может, у нас сложится: <a href="https://max.ru/u/f9LHodD0cOJjKMGEaMjSRAAXAtNdKRiZBMjCxE45vGH7eOTURM630KN8XLU" target="_blank" rel="noopener">MAX</a> · <a href="https://t.me/snitkovskaia" target="_blank" rel="noopener">Telegram</a></p>
+        <div class="about-text">
+          <p>Я менеджер рекламных проектов. По образованию — программист.</p>
+          <p>Ищу работу. Рынок изменился — боты, ИИ, фильтры. Я не спорю. Я адаптируюсь.</p>
+          <p>В колледже я писала пятнашки сама. Сейчас ИИ выдает код за пять минут. Сначала — беспомощность. Потом — понимание: в новом мире для меня решает не код, а продукт. За две недели — игра, десятки гипотез, кейс. Реальный результат.</p>
+          <p>В пятнашках не все расклады собираются, и это не всегда зависит от игрока. С работой так же — но каждый новый расклад это новый шанс.</p>
+          <p>Релиз — 11.11. Подробнее — в <a href="https://github.com/EsmaNoel/solve" target="_blank" rel="noopener">README на GitHub</a>.</p>
+          <p class="about-last-line">Пишите, может, у нас сложится: <a href="https://max.ru/u/f9LHodD0cOJjKMGEaMjSRAAXAtNdKRiZBMjCxE45vGH7eOTURM630KN8XLU" target="_blank" rel="noopener">MAX</a> · <a href="https://t.me/snitkovskaia" target="_blank" rel="noopener">Telegram</a></p>
+        </div>
         <button class="btn modal-close" id="aboutClose" type="button">Закрыть</button>
       </div>
     </div>
@@ -1189,85 +1203,6 @@
     resize(tiles) { this.renderAll(tiles); }
   }
 
-  const ShareCard = {
-    readTheme() {
-      const style = getComputedStyle(document.documentElement);
-      const read = (n, fb) => (style.getPropertyValue(n).trim() || fb);
-      return {
-        bg: read('--bg', '#f7ebd4'),
-        board: read('--board', '#4a8560'),
-        ink: read('--ink', '#3a2418'),
-        muted: read('--muted', '#8e6f50'),
-        accent: read('--accent', '#c94a3d'),
-        gold: read('--gold', '#e0b850'),
-      };
-    },
-    render({ tiles, handshake, result, main }) {
-      const S = 1080;
-      const canvas = document.createElement('canvas');
-      canvas.width = S; canvas.height = S;
-      const ctx = canvas.getContext('2d');
-      const c = this.readTheme();
-
-      ctx.fillStyle = c.bg;
-      ctx.fillRect(0, 0, S, S);
-
-      const flakes = [
-        [80,130],[140,95],[S-80,150],[S-140,110],
-        [70,S-200],[S-90,S-180],[110,S-280],[S-110,S-300],
-        [210,85],[S-220,95],[S-55,420],[75,540],
-        [55,S-70],[S-55,S-60],[S/2-260,180],[S/2+260,170]
-      ];
-      ctx.fillStyle = c.muted;
-      ctx.globalAlpha = 0.4;
-      for (const [x, y] of flakes) {
-        ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-
-      ctx.strokeStyle = c.accent;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(48, 48, S - 96, S - 96);
-      ctx.strokeStyle = c.gold;
-      ctx.lineWidth = 1;
-      ctx.strokeRect(60, 60, S - 120, S - 120);
-
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      ctx.fillStyle = c.board;
-      ctx.font = '600 56px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
-      ctx.fillText('Р Е Ш А Й', S / 2, 130);
-
-      ctx.fillStyle = c.muted;
-      ctx.font = 'italic 400 24px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
-      ctx.fillText('пятнашки по-русски', S / 2, 172);
-
-      ctx.fillStyle = c.accent;
-      ctx.font = 'italic 400 20px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
-      ctx.fillText('❄ под Рождество ❄', S / 2, 208);
-
-      ctx.save();
-      ctx.translate(S / 2 - 220, 250);
-      Matryoshka.draw(ctx, 440, tiles, handshake, true);
-      ctx.restore();
-
-      ctx.fillStyle = c.muted;
-      ctx.font = 'italic 400 36px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
-      ctx.fillText(result, S / 2, 780);
-
-      ctx.fillStyle = c.ink;
-      ctx.font = '700 76px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
-      ctx.fillText(main, S / 2, 870);
-
-      ctx.fillStyle = c.accent;
-      ctx.font = 'italic 400 24px "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif';
-      ctx.fillText('рукопожатие ' + ordinalText(handshake), S / 2, 940);
-
-      return canvas;
-    }
-  };
-
   class ChallengeLink {
     static parse(raw) {
       try {
@@ -1398,7 +1333,6 @@
       this._splashTimer = null;
       this._hasMoved = false;
       this._bridgeReady = false;
-      this._pendingDeepLink = null;
 
       this.bindEvents();
       this.bindSwipe();
@@ -1408,7 +1342,12 @@
     init() {
       let seen = false;
       try { seen = localStorage.getItem(SPLASH_KEY) === '1'; } catch (_) {}
-      if (!seen) this.showSplash();
+      if (!seen) {
+        this.showSplash();
+        this.dom.splashReplayBtn.classList.add('hidden');
+      } else {
+        this.dom.splashReplayBtn.classList.remove('hidden');
+      }
       try { localStorage.setItem(SPLASH_KEY, '1'); } catch (_) {}
 
       // Синхронно: проверяем hash (для GitHub Pages)
@@ -1423,7 +1362,6 @@
         this.startGame();
       }
 
-      // Асинхронно: ждём MAX Bridge, потом проверяем start_param
       this.bootstrapAsync();
     }
 
@@ -1460,7 +1398,6 @@
           if (sp) {
             const parsed = ChallengeLink.parse(sp);
             if (parsed.tiles) {
-              // Показываем карточку только если игрок еще не начал играть
               if (!this._hasMoved) {
                 this.pendingTiles = parsed.tiles;
                 this.pendingHandshake = parsed.handshake;
@@ -1479,8 +1416,6 @@
     }
 
     showSplash() {
-      const splash = this.dom.splash;
-      if (!splash) return;
       this._openSplash();
     }
 
@@ -1491,7 +1426,6 @@
       splash.classList.remove('hidden');
       this.dom.splashReplayBtn.classList.add('hidden');
 
-      // Сброс анимации
       text.classList.remove('play');
       void text.offsetWidth;
       text.classList.add('play');
@@ -1766,34 +1700,27 @@
     async transfer() {
       if (!this.originalTiles) return;
       if (this.state !== 'won' && this.state !== 'lost') return;
+
       const nextHandshake = this.currentHandshake + 1;
       const url = ChallengeLink.build(this.originalTiles, nextHandshake);
-      const textWithUrl = 'Тебе передали забаву. А слабо? ' + url;
 
-      let file = null;
-      try {
-        const data = this.getShareData();
-        const canvas = ShareCard.render({
-          tiles: this.originalTiles,
-          handshake: this.currentHandshake,
-          result: data.result,
-          main: data.main
-        });
-        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-        if (blob) file = new File([blob], 'matryoshka.png', { type: 'image/png' });
-      } catch (_) {}
+      const m = this.puzzle.moves;
+      let text = '';
+      
+      if (this.puzzle.isSolved()) {
+        text = 'Собрал забаву за ' + m + ' ' + plural(m, 'ход', 'хода', 'ходов') + '. Слабо повторить? Ты ' + nextHandshake + '-й в цепочке.';
+      } else {
+        text = 'Сдался на ' + m + '-м ходе в забаве. Возможно, этот расклад вообще нерешаемый... Проверь сам. Ты ' + nextHandshake + '-й в цепочке.';
+      }
+
+      const fullText = text + '\n' + url;
 
       if (navigator.share) {
-        const shareData = {
-          title: 'Решай',
-          text: textWithUrl,
-          url: url
-        };
-        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-          shareData.files = [file];
-        }
         try {
-          await navigator.share(shareData);
+          await navigator.share({
+            title: 'Решай',
+            text: fullText
+          });
           trackEvent('transfer');
           return;
         } catch (e) {
@@ -1804,14 +1731,14 @@
       let copied = false;
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(url);
+          await navigator.clipboard.writeText(fullText);
           copied = true;
         }
       } catch (_) {}
       if (!copied) {
         try {
           const ta = document.createElement('textarea');
-          ta.value = url;
+          ta.value = fullText;
           ta.style.position = 'fixed';
           ta.style.opacity = '0';
           document.body.appendChild(ta);
@@ -1821,25 +1748,11 @@
         } catch (_) {}
       }
       if (copied) {
-        this.showToast('Ссылка скопирована');
+        this.showToast('Текст с ссылкой скопирован');
         trackEvent('transfer');
       } else {
-        try { window.prompt('Скопируйте ссылку:', url); } catch (_) {}
+        try { window.prompt('Скопируйте текст:', fullText); } catch (_) {}
       }
-    }
-
-    getShareData() {
-      const m = this.puzzle.moves;
-      if (this.puzzle.isSolved()) {
-        return {
-          result: 'Собрал за ' + m + ' ' + plural(m, 'ход', 'хода', 'ходов'),
-          main: 'Твой ход'
-        };
-      }
-      return {
-        result: 'Сдался на ' + m + '-м',
-        main: 'Твой ход'
-      };
     }
 
     showToast(message) {
